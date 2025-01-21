@@ -5,10 +5,11 @@ class Player extends Sprite {
         platformCollisionBlocks,
         imageSrc,
         frameRate,
-        scale = 0.5,
+        scaleX = .2,
+        scaleY = .45,
         animations
     }) {
-        super({ imageSrc, frameRate, scale });
+        super({ imageSrc, frameRate, scaleX, scaleY });
         this.position = position;
         this.velocity = {
             x: 0,
@@ -50,11 +51,11 @@ class Player extends Sprite {
         this.updateHitbox();
 
         // draws out image
-        // c.fillStyle = "rgba(0, 255, 0, 0.2)";
-        // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+        c.fillStyle = "rgba(0, 255, 0, 0.2)";
+        c.fillRect(this.position.x, this.position.y, this.width, this.height);
 
-        // c.fillStyle = "rgba(255, 0, 0, 0.2)";
-        // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        c.fillStyle = "rgba(255, 0, 0, 0.2)";
+        c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
 
         this.draw();
 
@@ -69,11 +70,11 @@ class Player extends Sprite {
     updateHitbox() {
         this.hitbox = {
             position: {
-                x: this.position.x + 35,
-                y: this.position.y + 26,
+                x: this.position.x + 6,
+                y: this.position.y,
             },
-            width: 14,
-            height: 27,
+            width: 12,
+            height: 41,
         }
     }
 

@@ -5,12 +5,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const scaledCanvas = {
-    transX: 0,
-    transY: -160,
-    scaleX: 3,
-    scaleY: 3,
-    width: canvas.width / this.scaleX,
-    height: canvas.height / this.scaleY,
+    width: canvas.width / 4,
+    height: canvas.height / 4,
 }
 
 const floorCollisions2D = [];
@@ -54,10 +50,7 @@ platformCollisions2D.forEach((row, y) => {
     });
 });
 
-const gravity = 0.3;
-
-const player1Type = "player1";
-const player2Type = "player2";
+const gravity = 0.1;
 
 const player1 = new Player({
     position: {
@@ -165,6 +158,59 @@ const player2 = new Player({
     }
 });
 
+const player2 = new Player({
+    position: {
+        x: 200,
+        y: 300,
+    },
+    collisionBlocks,
+    platformCollisionBlocks,
+    imageSrc: "./img/player1/Idle.png",
+    frameRate: 8,
+    animations: {
+        Idle: {
+            imageSrc: "./img/player2/Idle.png",
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        IdleLeft: {
+            imageSrc: "./img/player2/IdleLeft.png",
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        Run: {
+            imageSrc: "./img/player2/Run.png",
+            frameRate: 5,
+            frameBuffer: 14,
+        },
+        RunLeft: {
+            imageSrc: "./img/player2/RunLeft.png",
+            frameRate: 5,
+            frameBuffer: 14,
+        },
+        Jump: {
+            imageSrc: "./img/player1/Jump.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+        JumpLeft: {
+            imageSrc: "./img/player1/JumpLeft.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+        Fall: {
+            imageSrc: "./img/player1/Fall.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+        FallLeft: {
+            imageSrc: "./img/player1/FallLeft.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+    }
+});
+
 const keys = {
     d: {
         pressed: false,
@@ -194,8 +240,8 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height);
 
     c.save();
-    c.scale(scaledCanvas.scaleX, scaledCanvas.scaleY);
-    c.translate(scaledCanvas.transX, scaledCanvas.transY);
+    c.scale(4, 4);
+    c.translate(0, -background.image.height + scaledCanvas.height);
 
     background.update();
 

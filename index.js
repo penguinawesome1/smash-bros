@@ -5,8 +5,10 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const scaledCanvas = {
-    width: canvas.width / 4,
-    height: canvas.height / 4,
+    scaleX: 3,
+    scaleY: 3,
+    width: canvas.width / this.scaleX,
+    height: canvas.height / this.scaleY,
 }
 
 const floorCollisions2D = [];
@@ -50,9 +52,9 @@ platformCollisions2D.forEach((row, y) => {
     });
 });
 
-const gravity = 0.1;
+const gravity = 0.3;
 
-const player = new Player({
+const player1 = new Player({
     position: {
         x: 100,
         y: 300,
@@ -105,11 +107,70 @@ const player = new Player({
     }
 });
 
+const player2 = new Player({
+    position: {
+        x: 200,
+        y: 300,
+    },
+    collisionBlocks,
+    platformCollisionBlocks,
+    imageSrc: "./img/player1/Idle.png",
+    frameRate: 8,
+    animations: {
+        Idle: {
+            imageSrc: "./img/player2/Idle.png",
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        IdleLeft: {
+            imageSrc: "./img/player2/IdleLeft.png",
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        Run: {
+            imageSrc: "./img/player2/Run.png",
+            frameRate: 5,
+            frameBuffer: 14,
+        },
+        RunLeft: {
+            imageSrc: "./img/player2/RunLeft.png",
+            frameRate: 5,
+            frameBuffer: 14,
+        },
+        Jump: {
+            imageSrc: "./img/player1/Jump.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+        JumpLeft: {
+            imageSrc: "./img/player1/JumpLeft.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+        Fall: {
+            imageSrc: "./img/player1/Fall.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+        FallLeft: {
+            imageSrc: "./img/player1/FallLeft.png",
+            frameRate: 2,
+            frameBuffer: 8,
+        },
+    }
+});
+
 const keys = {
     d: {
         pressed: false,
     },
     a: {
+        pressed: false,
+    },
+    left: {
+        pressed: false,
+    },
+    right: {
         pressed: false,
     },
 }
@@ -119,7 +180,7 @@ const background = new Sprite({
         x: 0,
         y: 0,
     },
-    imageSrc: "./img/background.png",
+    imageSrc: "./img/backgrounds/farm.png",
 })
 
 function animate() {
@@ -128,8 +189,8 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height);
 
     c.save();
-    c.scale(4, 4);
-    c.translate(0, -background.image.height + scaledCanvas.height);
+    c.scale(scaledCanvas.scaleX, scaledCanvas.scaleY);
+    c.translate(0, -170);
 
     background.update();
 
@@ -140,36 +201,68 @@ function animate() {
         block.update();
     });
 
-    player.update();
+    player1.update();
+    player2.update();
 
-    player.velocity.x = 0;
+    player1.velocity.x = 0;
     if (keys.d.pressed && !keys.a.pressed) {
-        player.switchSprite("Run");
-        player.velocity.x = 2;
-        player.lastDirection = "right";
+        player1.switchSprite("Run");
+        player1.velocity.x = 1.5;
+        player1.lastDirection = "right";
     } else if (keys.a.pressed && !keys.d.pressed) {
-        player.switchSprite("RunLeft");
-        player.velocity.x = -2;
-        player.lastDirection = "left";
-    } else if (player.velocity.y === 0) {
-        if (player.lastDirection === "right") {
-            player.switchSprite("Idle");
+        player1.switchSprite("RunLeft");
+        player1.velocity.x = -1.5;
+        player1.lastDirection = "left";
+    } else if (player1.velocity.y === 0) {
+        if (player1.lastDirection === "right") {
+            player1.switchSprite("Idle");
         } else {
-            player.switchSprite("IdleLeft");
+            player1.switchSprite("IdleLeft");
         }
     }
 
-    if (player.velocity.y < 0) {
-        if (player.lastDirection === "right") {
-            player.switchSprite("Jump");
+    if (player1.velocity.y < 0) {
+        if (player1.lastDirection === "right") {
+            player1.switchSprite("Jump");
         } else {
-            player.switchSprite("JumpLeft");
+            player1.switchSprite("JumpLeft");
         }
-    } else if (player.velocity.y > 0) {
-        if (player.lastDirection === "right") {
-            player.switchSprite("Fall");
+    } else if (player1.velocity.y > 0) {
+        if (player1.lastDirection === "right") {
+            player1.switchSprite("Fall");
         } else {
-            player.switchSprite("FallLeft");
+            player1.switchSprite("FallLeft");
+        }
+    }
+
+    player2.velocity.x = 0;
+    if (keys.right.pressed && !keys.left.pressed) {
+        player2.switchSprite("Run");
+        player2.velocity.x = 1.5;
+        player2.lastDirection = "right";
+    } else if (keys.left.pressed && !keys.right.pressed) {
+        player2.switchSprite("RunLeft");
+        player2.velocity.x = -1.5;
+        player2.lastDirection = "left";
+    } else if (player2.velocity.y === 0) {
+        if (player2.lastDirection === "right") {
+            player2.switchSprite("Idle");
+        } else {
+            player2.switchSprite("IdleLeft");
+        }
+    }
+
+    if (player2.velocity.y < 0) {
+        if (player2.lastDirection === "right") {
+            player2.switchSprite("Jump");
+        } else {
+            player2.switchSprite("JumpLeft");
+        }
+    } else if (player2.velocity.y > 0) {
+        if (player2.lastDirection === "right") {
+            player2.switchSprite("Fall");
+        } else {
+            player2.switchSprite("FallLeft");
         }
     }
 
@@ -182,7 +275,11 @@ window.addEventListener("keydown", (event) => {
     switch (event.key) {
         case "d": keys.d.pressed = true; break;
         case "a": keys.a.pressed = true; break;
-        case "w": player.velocity.y = -4; break;
+        case "w": player1.velocity.y = -4; break;
+
+        case "ArrowRight": keys.right.pressed = true; break;
+        case "ArrowLeft": keys.left.pressed = true; break;
+        case "ArrowUp": player2.velocity.y = -4; break;
     }
 });
 
@@ -190,5 +287,8 @@ window.addEventListener("keyup", (event) => {
     switch (event.key) {
         case "d": keys.d.pressed = false; break;
         case "a": keys.a.pressed = false; break;
+
+        case "ArrowRight": keys.right.pressed = false; break;
+        case "ArrowLeft": keys.left.pressed = false; break;
     }
 });

@@ -9,7 +9,7 @@ class Player extends Sprite {
         scaleY = .45,
         animations
     }) {
-        super({ imageSrc, frameRate, scaleX, scaleY });
+        super({ position, imageSrc, frameRate, scaleX, scaleY });
         this.position = position;
         this.velocity = {
             x: 0,
@@ -70,11 +70,11 @@ class Player extends Sprite {
     updateHitbox() {
         this.hitbox = {
             position: {
-                x: this.position.x + 7,
+                x: this.position.x + 4,
                 y: this.position.y,
             },
-            width: 17,
-            height: 41,
+            width: 23,
+            height: 50,
         }
     }
 

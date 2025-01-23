@@ -56,7 +56,7 @@ platformCollisions2D.forEach((row, y) => {
     });
 });
 
-const gravity = 0.1;
+const gravity = 0.2;
 
 player1Type = "player1";
 player2Type = "player2";
@@ -137,31 +137,31 @@ const player2 = new Player({
         Run: {
             imageSrc: `./img/${player2Type}/Run.png`,
             frameRate: 5,
-            frameBuffer: 14,
+            frameBuffer: 6,
         },
         RunLeft: {
             imageSrc: `./img/${player2Type}/RunLeft.png`,
             frameRate: 5,
-            frameBuffer: 14,
+            frameBuffer: 6,
         },
         Jump: {
-            imageSrc: `./img/${player1Type}/Jump.png`,
+            imageSrc: `./img/${player2Type}/Jump.png`,
             frameRate: 2,
-            frameBuffer: 8,
+            frameBuffer: 12,
         },
         JumpLeft: {
-            imageSrc: `./img/${player1Type}/JumpLeft.png`,
-            frameRate: 2,
+            imageSrc: `./img/${player2Type}/JumpLeft.png`,
+            frameRate: 1,
             frameBuffer: 8,
         },
         Fall: {
-            imageSrc: `./img/${player1Type}/Fall.png`,
-            frameRate: 2,
+            imageSrc: `./img/${player2Type}/Fall.png`,
+            frameRate: 1,
             frameBuffer: 8,
         },
         FallLeft: {
-            imageSrc: `./img/${player1Type}/FallLeft.png`,
-            frameRate: 2,
+            imageSrc: `./img/${player2Type}/FallLeft.png`,
+            frameRate: 1,
             frameBuffer: 8,
         },
     }
@@ -271,6 +271,10 @@ function animate() {
         } else {
             player2.switchSprite("FallLeft");
         }
+    }
+
+    if (player1.attackBox.position.x + player1.attackBox.width >= player2.position.x) {
+        console.log("UW0U");
     }
 
     c.restore();

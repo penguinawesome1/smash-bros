@@ -1,6 +1,9 @@
 const canvas = document.getElementById("game-board");
 const c = canvas.getContext("2d");
 
+const health1 = document.getElementById("health1");
+const health2 = document.getElementById("health2");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -111,6 +114,16 @@ const player1 = new Player({
             frameRate: 2,
             frameBuffer: 8,
         },
+        Attack1: {
+            imageSrc: `./img/${player1Type}/Attack1.png`,
+            frameRate: 4,
+            frameBuffer: 8,
+        },
+        Attack1Left: {
+            imageSrc: `./img/${player1Type}/Attack1Left.png`,
+            frameRate: 4,
+            frameBuffer: 8,
+        },
     }
 });
 
@@ -164,6 +177,16 @@ const player2 = new Player({
             frameRate: 1,
             frameBuffer: 8,
         },
+        Attack1: {
+            imageSrc: `./img/${player1Type}/Attack1.png`,
+            frameRate: 4,
+            frameBuffer: 8,
+        },
+        Attack1Left: {
+            imageSrc: `./img/${player1Type}/Attack1Left.png`,
+            frameRate: 4,
+            frameBuffer: 8,
+        },
     }
 });
 
@@ -210,6 +233,42 @@ function animate() {
 
     player1.update();
     player2.update();
+
+    if (player1.isAttacking) {
+        if (player1.lastDirection === "right") {
+            player1.switchSprite("Attack1");
+        } else {
+            player1.switchSprite("Attack1Left");
+        }
+
+        const hitPlayer2 = collision({
+            object1: player1.attackBox,
+            object2: player2.hitbox,
+        });
+        if (hitPlayer2) {
+            health2.value -= 10;
+            player1.isAttacking = false;
+            console.log("hit player 2");
+        }
+    }
+    if (player2.isAttacking) {
+        if (player2.lastDirection === "right") {
+            player2.switchSprite("Attack1");
+        } else {
+            player2.switchSprite("Attack1Left");
+        }
+
+        const hitPlayer1 = collision({
+            object1: player2.attackBox,
+            object2: player1.hitbox,
+        });
+    
+        if (hitPlayer1) {
+            health1.value -= 10;
+            player2.isAttacking = false;
+            console.log("hit player 1");
+        }
+    }
 
     player1.velocity.x = 0;
     if (keys.d.pressed && !keys.a.pressed) {
@@ -273,10 +332,6 @@ function animate() {
         }
     }
 
-    if (player1.attackBox.position.x + player1.attackBox.width >= player2.position.x) {
-        console.log("UW0U");
-    }
-
     c.restore();
 }
 
@@ -287,10 +342,12 @@ window.addEventListener("keydown", (event) => {
         case "d": keys.d.pressed = true; break;
         case "a": keys.a.pressed = true; break;
         case "w": player1.velocity.y = -4; break;
+        case "e": player1.attack(); break;
 
         case "ArrowRight": keys.right.pressed = true; break;
         case "ArrowLeft": keys.left.pressed = true; break;
         case "ArrowUp": player2.velocity.y = -4; break;
+        case "/": player2.attack(); break;
     }
 });
 

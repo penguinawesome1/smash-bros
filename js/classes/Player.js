@@ -35,15 +35,29 @@ class Player extends Sprite {
 
             this.animations[key].image = image;
         }
+
+        this.attackBox = {
+            position: this.position,
+            width: 20,
+            height: 20,
+        }
+
+        this.prevIsAttacking = false;
     }
 
     switchSprite(key) {
-        if (this.image === this.animations[key].image || !this.loaded) return;
+        const sameImage = this.image === this.animations[key].image;
+        if (sameImage || this.prevIsAttacking || !this.loaded) {
+            this.prevIsAttacking = this.isAttacking;
+            return;
+        }
 
         this.currentFrame = 0;
         this.image = this.animations[key].image;
         this.frameBuffer = this.animations[key].frameBuffer;
         this.frameRate = this.animations[key].frameRate;
+
+        this.prevIsAttacking = this.isAttacking;
     }
 
     update() {
@@ -54,9 +68,16 @@ class Player extends Sprite {
         c.fillStyle = "rgba(0, 255, 0, 0.2)";
         c.fillRect(this.position.x, this.position.y, this.width, this.height);
 
+        // draws out hitbox
         c.fillStyle = "rgba(255, 0, 0, 0.2)";
         c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
 
+        // draws out attack
+        if (this.isAttacking) {
+            c.fillStyle = "rgba(0, 0, 255, 0.2)";
+            c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        }
+        
         this.draw();
 
         this.position.x += this.velocity.x;
@@ -65,6 +86,13 @@ class Player extends Sprite {
         this.applyGravity();
         this.updateHitbox();
         this.checkForVerticalCollisions();
+    }
+
+    attack() {
+        this.isAttacking = true;
+        setTimeout(() => {
+            this.isAttacking = false;
+        }, 500000);
     }
 
     updateHitbox() {
@@ -132,7 +160,7 @@ class Player extends Sprite {
                     
                     const offset = this.hitbox.position.y - this.position.y;
 
-                    this.position.y = platformCollisionBlock.position.y + platformCollisionBlock.height - offset + 0.01;
+                    this.position.y = collisionBlock.position.y + collisionBlock.height - offset + 0.01;
                     break;
                 }
             }

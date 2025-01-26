@@ -15,11 +15,6 @@ class Sprite {
         this.currentFrame = 0;
         this.frameBuffer = frameBuffer;
         this.elapsedFrames = 0;
-        this.attackBox = {
-            position: this.position,
-            width: 100,
-            height: 50,
-        }
     }
 
     draw() {

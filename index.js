@@ -215,8 +215,6 @@ const background = new Sprite({
 
 function animate() {
     window.requestAnimationFrame(animate);
-    c.fillStyle = "white";
-    c.fillRect(0, 0, canvas.width, canvas.height);
 
     c.save();
     c.scale(scaledCanvas.scale, scaledCanvas.scale);
@@ -240,9 +238,17 @@ function animate() {
             object2: player2.hitbox,
         });
         if (hitPlayer2) {
+            const angle = calcAngle({
+                object1: player1.attackBox,
+                object2: player2.hitbox,
+            });
+            player2.velocity.x = Math.cos(angle) * 10;
+            player2.velocity.y = Math.sin(angle) * 5;
+
+            console.log(Math.cos(angle) * 10);
+
             health2.value -= 10;
             player1.isAttacking = false;
-            console.log("hit player 2");
         }
     }
     if (player2.isAttacking) {
@@ -252,13 +258,21 @@ function animate() {
         });
     
         if (hitPlayer1) {
+            const angle = calcAngle({
+                object1: player2.attackBox,
+                object2: player1.hitbox,
+            });
+            player1.velocity.x = Math.cos(angle) * 10;
+            player1.velocity.y = Math.sin(angle) * 5;
+
+            console.log(Math.cos(angle) * 10);
+
             health1.value -= 10;
             player2.isAttacking = false;
-            console.log("hit player 1");
         }
     }
 
-    player1.velocity.x = 0;
+    player1.velocity.x *= 0.9;
     if (keys.d.pressed && !keys.a.pressed) {
         player1Sprite = "Run";
         player1.velocity.x = 1.5;
@@ -289,7 +303,7 @@ function animate() {
         }
     }
 
-    player2.velocity.x = 0;
+    player2.velocity.x *= 0.9;
     if (keys.right.pressed && !keys.left.pressed) {
         player2Sprite = "Run";
         player2.velocity.x = 1.5;

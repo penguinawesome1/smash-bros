@@ -5,11 +5,10 @@ class Player extends Sprite {
         platformCollisionBlocks,
         imageSrc,
         frameRate,
-        scaleX = .2,
-        scaleY = .45,
+        scale = .5,
         animations
     }) {
-        super({ position, imageSrc, frameRate, scaleX, scaleY });
+        super({ position, imageSrc, frameRate, scale });
         this.position = position;
         this.velocity = {
             x: 0,
@@ -18,10 +17,7 @@ class Player extends Sprite {
         this.collisionBlocks = collisionBlocks;
         this.platformCollisionBlocks = platformCollisionBlocks;
         this.hitbox = {
-            position: {
-                x: this.position.x,
-                y: this.position.y,
-            },
+            position: this.position,
             width: 10,
             height: 10,
         }
@@ -38,8 +34,8 @@ class Player extends Sprite {
 
         this.attackBox = {
             position: this.position,
-            width: 20,
-            height: 20,
+            width: 0,
+            height: 0,
         }
 
         this.prevIsAttacking = false;
@@ -65,18 +61,18 @@ class Player extends Sprite {
         this.updateHitbox();
 
         // draws out image
-        c.fillStyle = "rgba(0, 255, 0, 0.2)";
-        c.fillRect(this.position.x, this.position.y, this.width, this.height);
+        // c.fillStyle = "rgba(0, 255, 0, 0.2)";
+        // c.fillRect(this.position.x, this.position.y, this.width, this.height);
 
-        // draws out hitbox
-        c.fillStyle = "rgba(255, 0, 0, 0.2)";
-        c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        // // draws out hitbox
+        // c.fillStyle = "rgba(255, 0, 0, 0.2)";
+        // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
 
-        // draws out attack
-        if (this.isAttacking) {
-            c.fillStyle = "rgba(0, 0, 255, 0.2)";
-            c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-        }
+        // // draws out attack
+        // if (this.isAttacking) {
+        //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
+        //     c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        // }
         
         this.draw();
 
@@ -84,6 +80,7 @@ class Player extends Sprite {
         this.updateHitbox();
         this.checkForHorizontalCollisions();
         this.applyGravity();
+        // this.applyFriction();
         this.updateHitbox();
         this.checkForVerticalCollisions();
     }
@@ -92,17 +89,26 @@ class Player extends Sprite {
         this.isAttacking = true;
         setTimeout(() => {
             this.isAttacking = false;
-        }, 500000);
+        }, 500);
     }
 
     updateHitbox() {
         this.hitbox = {
             position: {
-                x: this.position.x + 4,
+                x: this.position.x + 22,
                 y: this.position.y,
             },
-            width: 23,
-            height: 50,
+            width: 35,
+            height: 55,
+        }
+
+        this.attackBox = {
+            position: {
+                x: this.position.x + 22,
+                y: this.position.y,
+            },
+            width: 35,
+            height: 55,
         }
     }
 
@@ -137,6 +143,11 @@ class Player extends Sprite {
     applyGravity() {
         this.velocity.y += gravity;
         this.position.y += this.velocity.y;
+    }
+
+    applyFriction() {
+        this.velocity.x += friction;
+        this.position.x += this.velocity.x;
     }
 
     checkForVerticalCollisions() {

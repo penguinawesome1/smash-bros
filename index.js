@@ -12,10 +12,9 @@ const scaledCanvas = {
     height: canvas.height / 4,
     transX: 0,
     transY: -175,
-    scaleX: 3,
-    scaleY: 3,
-    width: canvas.width / this.scaleX,
-    height: canvas.height / this.scaleY,
+    scale: 3,
+    width: canvas.width / this.scale,
+    height: canvas.height / this.scale,
 }
 
 const floorCollisions2D = [];
@@ -60,6 +59,7 @@ platformCollisions2D.forEach((row, y) => {
 });
 
 const gravity = 0.2;
+const friction = 0.08;
 
 player1Type = "player1";
 player2Type = "player2";
@@ -164,8 +164,8 @@ const player2 = new Player({
         },
         JumpLeft: {
             imageSrc: `./img/${player2Type}/JumpLeft.png`,
-            frameRate: 1,
-            frameBuffer: 8,
+            frameRate: 2,
+            frameBuffer: 12,
         },
         Fall: {
             imageSrc: `./img/${player2Type}/Fall.png`,
@@ -178,14 +178,14 @@ const player2 = new Player({
             frameBuffer: 8,
         },
         Attack1: {
-            imageSrc: `./img/${player1Type}/Attack1.png`,
-            frameRate: 4,
-            frameBuffer: 8,
+            imageSrc: `./img/${player2Type}/Attack1.png`,
+            frameRate: 8,
+            frameBuffer: 4,
         },
         Attack1Left: {
-            imageSrc: `./img/${player1Type}/Attack1Left.png`,
-            frameRate: 4,
-            frameBuffer: 8,
+            imageSrc: `./img/${player2Type}/Attack1Left.png`,
+            frameRate: 8,
+            frameBuffer: 4,
         },
     }
 });
@@ -219,7 +219,7 @@ function animate() {
     c.fillRect(0, 0, canvas.width, canvas.height);
 
     c.save();
-    c.scale(scaledCanvas.scaleX, scaledCanvas.scaleY);
+    c.scale(scaledCanvas.scale, scaledCanvas.scale);
     c.translate(scaledCanvas.transX, scaledCanvas.transY);
 
     background.update();

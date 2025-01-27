@@ -234,11 +234,73 @@ function animate() {
     player1.update();
     player2.update();
 
+    player1.velocity.x = 0;
+    if (keys.d.pressed && !keys.a.pressed) {
+        player1Sprite = "Run";
+        player1.velocity.x = 1.5;
+        player1.lastDirection = "right";
+    } else if (keys.a.pressed && !keys.d.pressed) {
+        player1Sprite = "RunLeft";
+        player1.velocity.x = -1.5;
+        player1.lastDirection = "left";
+    } else if (player1.velocity.y === 0) {
+        if (player1.lastDirection === "right") {
+            player1Sprite = "Idle";
+        } else {
+            player1Sprite = "IdleLeft";
+        }
+    }
+
+    if (player1.velocity.y < 0) {
+        if (player1.lastDirection === "right") {
+            player1Sprite = "Jump";
+        } else {
+            player1Sprite = "JumpLeft";
+        }
+    } else if (player1.velocity.y > 0) {
+        if (player1.lastDirection === "right") {
+            player1Sprite = "Fall";
+        } else {
+            player1Sprite = "FallLeft";
+        }
+    }
+
+    player2.velocity.x = 0;
+    if (keys.right.pressed && !keys.left.pressed) {
+        player2Sprite = "Run";
+        player2.velocity.x = 1.5;
+        if (!player2.isAttacking) player2.lastDirection = "right";
+    } else if (keys.left.pressed && !keys.right.pressed) {
+        player2Sprite = "RunLeft";
+        player2.velocity.x = -1.5;
+        if (!player2.isAttacking) player2.lastDirection = "left";
+    } else if (player2.velocity.y === 0) {
+        if (player2.lastDirection === "right") {
+            player2Sprite = "Idle";
+        } else {
+            player2Sprite = "IdleLeft";
+        }
+    }
+
+    if (player2.velocity.y < 0) {
+        if (player2.lastDirection === "right") {
+            player2Sprite = "Jump";
+        } else {
+            player2Sprite = "JumpLeft";
+        }
+    } else if (player2.velocity.y > 0) {
+        if (player2.lastDirection === "right") {
+            player2Sprite = "Fall";
+        } else {
+            player2Sprite = "FallLeft";
+        }
+    }
+
     if (player1.isAttacking) {
         if (player1.lastDirection === "right") {
-            player1.switchSprite("Attack1");
+            player1Sprite = "Attack1";
         } else {
-            player1.switchSprite("Attack1Left");
+            player1Sprite = "Attack1Left";
         }
 
         const hitPlayer2 = collision({
@@ -253,9 +315,9 @@ function animate() {
     }
     if (player2.isAttacking) {
         if (player2.lastDirection === "right") {
-            player2.switchSprite("Attack1");
+            player2Sprite = "Attack1";
         } else {
-            player2.switchSprite("Attack1Left");
+            player2Sprite = "Attack1Left";
         }
 
         const hitPlayer1 = collision({
@@ -270,67 +332,8 @@ function animate() {
         }
     }
 
-    player1.velocity.x = 0;
-    if (keys.d.pressed && !keys.a.pressed) {
-        player1.switchSprite("Run");
-        player1.velocity.x = 1.5;
-        player1.lastDirection = "right";
-    } else if (keys.a.pressed && !keys.d.pressed) {
-        player1.switchSprite("RunLeft");
-        player1.velocity.x = -1.5;
-        player1.lastDirection = "left";
-    } else if (player1.velocity.y === 0) {
-        if (player1.lastDirection === "right") {
-            player1.switchSprite("Idle");
-        } else {
-            player1.switchSprite("IdleLeft");
-        }
-    }
-
-    if (player1.velocity.y < 0) {
-        if (player1.lastDirection === "right") {
-            player1.switchSprite("Jump");
-        } else {
-            player1.switchSprite("JumpLeft");
-        }
-    } else if (player1.velocity.y > 0) {
-        if (player1.lastDirection === "right") {
-            player1.switchSprite("Fall");
-        } else {
-            player1.switchSprite("FallLeft");
-        }
-    }
-
-    player2.velocity.x = 0;
-    if (keys.right.pressed && !keys.left.pressed) {
-        player2.switchSprite("Run");
-        player2.velocity.x = 1.5;
-        player2.lastDirection = "right";
-    } else if (keys.left.pressed && !keys.right.pressed) {
-        player2.switchSprite("RunLeft");
-        player2.velocity.x = -1.5;
-        player2.lastDirection = "left";
-    } else if (player2.velocity.y === 0) {
-        if (player2.lastDirection === "right") {
-            player2.switchSprite("Idle");
-        } else {
-            player2.switchSprite("IdleLeft");
-        }
-    }
-
-    if (player2.velocity.y < 0) {
-        if (player2.lastDirection === "right") {
-            player2.switchSprite("Jump");
-        } else {
-            player2.switchSprite("JumpLeft");
-        }
-    } else if (player2.velocity.y > 0) {
-        if (player2.lastDirection === "right") {
-            player2.switchSprite("Fall");
-        } else {
-            player2.switchSprite("FallLeft");
-        }
-    }
+    player1.switchSprite(player1Sprite);
+    player2.switchSprite(player2Sprite);
 
     c.restore();
 }
@@ -341,12 +344,12 @@ window.addEventListener("keydown", (event) => {
     switch (event.key) {
         case "d": keys.d.pressed = true; break;
         case "a": keys.a.pressed = true; break;
-        case "w": player1.velocity.y = -4; break;
+        case "w": player1.velocity.y = -5; break;
         case "e": player1.attack(); break;
 
         case "ArrowRight": keys.right.pressed = true; break;
         case "ArrowLeft": keys.left.pressed = true; break;
-        case "ArrowUp": player2.velocity.y = -4; break;
+        case "ArrowUp": player2.velocity.y = -5; break;
         case "/": player2.attack(); break;
     }
 });

@@ -37,24 +37,20 @@ class Player extends Sprite {
             width: 0,
             height: 0,
         }
-
-        this.prevIsAttacking = false;
-        this.cooldown = false;
     }
 
     switchSprite(key) {
+        const notLastFrame = this.currentFrame < this.animations.Attack1.frameRate - 1;
+        const attackImage = this.image === this.animations.Attack1.image || this.image === this.animations.Attack1Left.image;
+        if (attackImage && notLastFrame) return;
+
         const sameImage = this.image === this.animations[key].image;
-        if (sameImage || this.prevIsAttacking || !this.loaded) {
-            this.prevIsAttacking = this.isAttacking;
-            return;
-        }
+        if (sameImage || !this.loaded) return;
 
         this.currentFrame = 0;
         this.image = this.animations[key].image;
         this.frameBuffer = this.animations[key].frameBuffer;
         this.frameRate = this.animations[key].frameRate;
-
-        this.prevIsAttacking = this.isAttacking;
     }
 
     update() {
@@ -88,14 +84,21 @@ class Player extends Sprite {
 
     attack() {
         if (this.cooldown) return;
+        
+        if (this.lastDirection === "right") {
+            this.switchSprite("Attack1");
+        } else {
+            this.switchSprite("Attack1Left");
+        }
+
         this.isAttacking = true;
         this.cooldown = true;
         setTimeout(() => {
             this.isAttacking = false;
-        }, 500);
+        }, 150);
         setTimeout(() => {
             this.cooldown = false;
-        }, 1000);
+        }, 500);
     }
 
     updateHitbox() {
@@ -110,11 +113,11 @@ class Player extends Sprite {
 
         this.attackBox = {
             position: {
-                x: this.position.x + 22 + 40 * (this.lastDirection === "right" ? 1 : -1),
-                y: this.position.y,
+                x: this.position.x + 37 + 23 * (this.lastDirection === "right" ? 1 : -1),
+                y: this.position.y + 13,
             },
-            width: 40,
-            height: 20,
+            width: 5,
+            height: 7,
         }
     }
 

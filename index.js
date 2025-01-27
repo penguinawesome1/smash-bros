@@ -233,6 +233,30 @@ function animate() {
 
     player1.update();
     player2.update();
+    
+    if (player1.isAttacking) {
+        const hitPlayer2 = collision({
+            object1: player1.attackBox,
+            object2: player2.hitbox,
+        });
+        if (hitPlayer2) {
+            health2.value -= 10;
+            player1.isAttacking = false;
+            console.log("hit player 2");
+        }
+    }
+    if (player2.isAttacking) {
+        const hitPlayer1 = collision({
+            object1: player2.attackBox,
+            object2: player1.hitbox,
+        });
+    
+        if (hitPlayer1) {
+            health1.value -= 10;
+            player2.isAttacking = false;
+            console.log("hit player 1");
+        }
+    }
 
     player1.velocity.x = 0;
     if (keys.d.pressed && !keys.a.pressed) {
@@ -293,42 +317,6 @@ function animate() {
             player2Sprite = "Fall";
         } else {
             player2Sprite = "FallLeft";
-        }
-    }
-
-    if (player1.isAttacking) {
-        if (player1.lastDirection === "right") {
-            player1Sprite = "Attack1";
-        } else {
-            player1Sprite = "Attack1Left";
-        }
-
-        const hitPlayer2 = collision({
-            object1: player1.attackBox,
-            object2: player2.hitbox,
-        });
-        if (hitPlayer2) {
-            health2.value -= 10;
-            player1.isAttacking = false;
-            console.log("hit player 2");
-        }
-    }
-    if (player2.isAttacking) {
-        if (player2.lastDirection === "right") {
-            player2Sprite = "Attack1";
-        } else {
-            player2Sprite = "Attack1Left";
-        }
-
-        const hitPlayer1 = collision({
-            object1: player2.attackBox,
-            object2: player1.hitbox,
-        });
-    
-        if (hitPlayer1) {
-            health1.value -= 10;
-            player2.isAttacking = false;
-            console.log("hit player 1");
         }
     }
 

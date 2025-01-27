@@ -39,6 +39,7 @@ class Player extends Sprite {
         }
 
         this.prevIsAttacking = false;
+        this.cooldown = false;
     }
 
     switchSprite(key) {
@@ -61,18 +62,18 @@ class Player extends Sprite {
         this.updateHitbox();
 
         // draws out image
-        // c.fillStyle = "rgba(0, 255, 0, 0.2)";
-        // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+        c.fillStyle = "rgba(0, 255, 0, 0.2)";
+        c.fillRect(this.position.x, this.position.y, this.width, this.height);
 
-        // // draws out hitbox
-        // c.fillStyle = "rgba(255, 0, 0, 0.2)";
-        // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        // draws out hitbox
+        c.fillStyle = "rgba(255, 0, 0, 0.2)";
+        c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
 
-        // // draws out attack
-        // if (this.isAttacking) {
-        //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
-        //     c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-        // }
+        // draws out attack
+        if (this.isAttacking) {
+            c.fillStyle = "rgba(0, 0, 255, 0.2)";
+            c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        }
         
         this.draw();
 
@@ -86,10 +87,15 @@ class Player extends Sprite {
     }
 
     attack() {
+        if (this.cooldown) return;
         this.isAttacking = true;
+        this.cooldown = true;
         setTimeout(() => {
             this.isAttacking = false;
         }, 500);
+        setTimeout(() => {
+            this.cooldown = false;
+        }, 1000);
     }
 
     updateHitbox() {
@@ -104,11 +110,11 @@ class Player extends Sprite {
 
         this.attackBox = {
             position: {
-                x: this.position.x + 22,
+                x: this.position.x + 22 + 40 * (this.lastDirection === "right" ? 1 : -1),
                 y: this.position.y,
             },
-            width: 35,
-            height: 55,
+            width: 40,
+            height: 20,
         }
     }
 

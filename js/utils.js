@@ -1,15 +1,19 @@
-function collision({ object1, object2 }) {
+function collision({ object1, object2, type = null }) {
+    const grounded = object1.position.y + object1.height >= object2.position.y;
+    if (type !== null) type.grounded = grounded;
     return (
-        object1.position.y + object1.height >= object2.position.y &&
+        grounded &&
         object1.position.y <= object2.position.y + object2.height &&
         object1.position.x <= object2.position.x + object2.width &&
         object1.position.x + object1.width >= object2.position.x
     );
 }
   
-function platformCollision({ object1, object2 }) {
+function platformCollision({ object1, object2, type = null }) {
+    const grounded = object1.position.y + object1.height >= object2.position.y;
+    if (type !== null) type.grounded = grounded;
     return (
-        object1.position.y + object1.height >= object2.position.y &&
+        grounded &&
         object1.position.y + object1.height <= object2.position.y + object2.height &&
         object1.position.x <= object2.position.x + object2.width &&
         object1.position.x + object1.width >= object2.position.x

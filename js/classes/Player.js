@@ -22,8 +22,10 @@ class Player extends Sprite {
             height: 10,
         }
 
-        this.animations = animations;
+        this.grounded = false;
+        this.jumps = maxJumps;
         this.lastDirection = "right";
+        this.animations = animations;
 
         for (let key in this.animations) {
             const image = new Image();
@@ -42,10 +44,8 @@ class Player extends Sprite {
     switchSprite(key) {
         const notLastFrame = this.currentFrame < this.animations.Attack1.frameRate - 1;
         const attackImage = this.image === this.animations.Attack1.image || this.image === this.animations.Attack1Left.image;
-        if (attackImage && notLastFrame) return;
-
         const sameImage = this.image === this.animations[key].image;
-        if (sameImage || !this.loaded) return;
+        if (sameImage || !this.loaded || (attackImage && notLastFrame)) return;
 
         this.currentFrame = 0;
         this.image = this.animations[key].image;
@@ -101,6 +101,12 @@ class Player extends Sprite {
         }, 500);
     }
 
+    jump() {
+        if (this.jumps < 1) return;
+        this.velocity.y = -5;
+        this.jumps--;
+    }
+
     updateHitbox() {
         this.hitbox = {
             position: {
@@ -128,6 +134,7 @@ class Player extends Sprite {
             if (collision({
                 object1: this.hitbox,
                 object2: collisionBlock,
+                type: this,
             })) {
                 if (this.velocity.x > 0) {
                     this.velocity.x = 0;
@@ -166,6 +173,7 @@ class Player extends Sprite {
             if (collision({
                 object1: this.hitbox,
                 object2: collisionBlock,
+                type: this,
             })) {
                 if (this.velocity.y > 0) {
                     this.velocity.y = 0;
@@ -193,6 +201,7 @@ class Player extends Sprite {
             if (platformCollision({
                 object1: this.hitbox,
                 object2: platformCollisionBlock,
+                type: this,
             })) {
                 if (this.velocity.y > 0) {
                     this.velocity.y = 0;

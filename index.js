@@ -1,8 +1,13 @@
 const canvas = document.getElementById("game-board");
 const c = canvas.getContext("2d");
-
 const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
+const maxJumps = 2;
+const gravity = 0.2;
+const slowDownMultiplier = 0.8;
+const playerSpeed = 0.6;
+const player1Type = "player1";
+const player2Type = "player2";
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -57,12 +62,6 @@ platformCollisions2D.forEach((row, y) => {
         }
     });
 });
-
-const gravity = 0.2;
-const friction = 0.08;
-
-player1Type = "player1";
-player2Type = "player2";
 
 const player1 = new Player({
     position: {
@@ -231,6 +230,15 @@ function animate() {
 
     player1.update();
     player2.update();
+
+    if (player1.grounded) {
+        player1.velocity.y = 0;
+        player1.jumps = maxJumps;
+    }
+    if (player2.grounded) {
+        player2.velocity.y = 0;
+        player2.jumps = maxJumps;
+    }
     
     if (player1.isAttacking) {
         const hitPlayer2 = collision({
@@ -272,9 +280,7 @@ function animate() {
         }
     }
 
-    const playerSpeed = 0.6;
-
-    player1.velocity.x *= 0.8;
+    player1.velocity.x *= slowDownMultiplier;
     if (keys.d.pressed && !keys.a.pressed) {
         player1Sprite = "Run";
         player1.velocity.x += playerSpeed;
@@ -305,7 +311,7 @@ function animate() {
         }
     }
 
-    player2.velocity.x *= 0.8;
+    player2.velocity.x *= slowDownMultiplier;
     if (keys.right.pressed && !keys.left.pressed) {
         player2Sprite = "Run";
         player2.velocity.x += playerSpeed;
@@ -348,12 +354,12 @@ window.addEventListener("keydown", (event) => {
     switch (event.key) {
         case "d": keys.d.pressed = true; break;
         case "a": keys.a.pressed = true; break;
-        case "w": player1.velocity.y = -5; break;
+        case "w": player1.jump(); break;
         case "e": player1.attack(); break;
 
         case "ArrowRight": keys.right.pressed = true; break;
         case "ArrowLeft": keys.left.pressed = true; break;
-        case "ArrowUp": player2.velocity.y = -5; break;
+        case "ArrowUp": player2.jump(); break;
         case "/": player2.attack(); break;
     }
 });

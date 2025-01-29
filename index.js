@@ -117,12 +117,12 @@ const player1 = new Player({
         Attack1: {
             imageSrc: `./img/${player1Type}/Attack1.png`,
             frameRate: 4,
-            frameBuffer: 8,
+            frameBuffer: 3,
         },
         Attack1Left: {
             imageSrc: `./img/${player1Type}/Attack1Left.png`,
             frameRate: 4,
-            frameBuffer: 8,
+            frameBuffer: 3,
         },
     }
 });
@@ -180,12 +180,12 @@ const player2 = new Player({
         Attack1: {
             imageSrc: `./img/${player2Type}/Attack1.png`,
             frameRate: 8,
-            frameBuffer: 4,
+            frameBuffer: 3,
         },
         Attack1Left: {
             imageSrc: `./img/${player2Type}/Attack1Left.png`,
             frameRate: 8,
-            frameBuffer: 4,
+            frameBuffer: 3,
         },
     }
 });
@@ -242,8 +242,8 @@ function animate() {
                 object1: player1.attackBox,
                 object2: player2.hitbox,
             });
-            player2.velocity.x = Math.cos(angle) * 10;
-            player2.velocity.y = Math.sin(angle) * 5;
+            player2.velocity.x = Math.cos(angle) * 2000 / health2.value;
+            player2.velocity.y = Math.sin(angle) * 700 / health2.value;
 
             console.log(Math.cos(angle) * 10);
 
@@ -262,8 +262,8 @@ function animate() {
                 object1: player2.attackBox,
                 object2: player1.hitbox,
             });
-            player1.velocity.x = Math.cos(angle) * 10;
-            player1.velocity.y = Math.sin(angle) * 5;
+            player1.velocity.x = Math.cos(angle) * 2000 / health1.value;
+            player1.velocity.y = Math.sin(angle) * 700 / health1.value;
 
             console.log(Math.cos(angle) * 10);
 
@@ -272,14 +272,16 @@ function animate() {
         }
     }
 
-    player1.velocity.x *= 0.9;
+    const playerSpeed = 0.6;
+
+    player1.velocity.x *= 0.8;
     if (keys.d.pressed && !keys.a.pressed) {
         player1Sprite = "Run";
-        player1.velocity.x = 1.5;
+        player1.velocity.x += playerSpeed;
         player1.lastDirection = "right";
     } else if (keys.a.pressed && !keys.d.pressed) {
         player1Sprite = "RunLeft";
-        player1.velocity.x = -1.5;
+        player1.velocity.x += -playerSpeed;
         player1.lastDirection = "left";
     } else if (player1.velocity.y === 0) {
         if (player1.lastDirection === "right") {
@@ -303,14 +305,14 @@ function animate() {
         }
     }
 
-    player2.velocity.x *= 0.9;
+    player2.velocity.x *= 0.8;
     if (keys.right.pressed && !keys.left.pressed) {
         player2Sprite = "Run";
-        player2.velocity.x = 1.5;
+        player2.velocity.x += playerSpeed;
         if (!player2.isAttacking) player2.lastDirection = "right";
     } else if (keys.left.pressed && !keys.right.pressed) {
         player2Sprite = "RunLeft";
-        player2.velocity.x = -1.5;
+        player2.velocity.x += -playerSpeed;
         if (!player2.isAttacking) player2.lastDirection = "left";
     } else if (player2.velocity.y === 0) {
         if (player2.lastDirection === "right") {

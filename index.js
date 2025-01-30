@@ -3,9 +3,12 @@ const c = canvas.getContext("2d");
 const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
 const maxJumps = 2;
+const maxDashes = 2;
 const gravity = 0.2;
 const slowDownMultiplier = 0.8;
 const playerSpeed = 0.6;
+const dashStrength = 15;
+const jumpStrength = -6;
 const player1Type = "player1";
 const player2Type = "player2";
 
@@ -63,7 +66,7 @@ platformCollisions2D.forEach((row, y) => {
     });
 });
 
-const player1 = new Player({
+const hi = new Player({
     position: {
         x: 100,
         y: 300,
@@ -121,6 +124,69 @@ const player1 = new Player({
         Attack1Left: {
             imageSrc: `./img/${player1Type}/Attack1Left.png`,
             frameRate: 4,
+            frameBuffer: 3,
+        },
+    }
+});
+
+const player1 = new Player({
+    position: {
+        x: 200,
+        y: 300,
+    },
+    collisionBlocks,
+    platformCollisionBlocks,
+    imageSrc: `./img/${player1Type}/Idle.png`,
+    frameRate: 8,
+    animations: {
+        Idle: {
+            imageSrc: `./img/${player2Type}/Idle.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        IdleLeft: {
+            imageSrc: `./img/${player2Type}/IdleLeft.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        Run: {
+            imageSrc: `./img/${player2Type}/Run.png`,
+            frameRate: 5,
+            frameBuffer: 6,
+        },
+        RunLeft: {
+            imageSrc: `./img/${player2Type}/RunLeft.png`,
+            frameRate: 5,
+            frameBuffer: 6,
+        },
+        Jump: {
+            imageSrc: `./img/${player2Type}/Jump.png`,
+            frameRate: 2,
+            frameBuffer: 12,
+        },
+        JumpLeft: {
+            imageSrc: `./img/${player2Type}/JumpLeft.png`,
+            frameRate: 2,
+            frameBuffer: 12,
+        },
+        Fall: {
+            imageSrc: `./img/${player2Type}/Fall.png`,
+            frameRate: 1,
+            frameBuffer: 8,
+        },
+        FallLeft: {
+            imageSrc: `./img/${player2Type}/FallLeft.png`,
+            frameRate: 1,
+            frameBuffer: 8,
+        },
+        Attack1: {
+            imageSrc: `./img/${player2Type}/Attack1.png`,
+            frameRate: 8,
+            frameBuffer: 3,
+        },
+        Attack1Left: {
+            imageSrc: `./img/${player2Type}/Attack1Left.png`,
+            frameRate: 8,
             frameBuffer: 3,
         },
     }
@@ -202,7 +268,7 @@ const keys = {
     right: {
         pressed: false,
     },
-}
+};
 
 const background = new Sprite({
     position: {
@@ -210,7 +276,7 @@ const background = new Sprite({
         y: 0,
     },
     imageSrc: "./img/backgrounds/farm.png",
-})
+});
 
 function animate() {
     window.requestAnimationFrame(animate);
@@ -230,15 +296,6 @@ function animate() {
 
     player1.update();
     player2.update();
-
-    if (player1.grounded) {
-        player1.velocity.y = 0;
-        player1.jumps = maxJumps;
-    }
-    if (player2.grounded) {
-        player2.velocity.y = 0;
-        player2.jumps = maxJumps;
-    }
     
     if (player1.isAttacking) {
         const hitPlayer2 = collision({
@@ -255,7 +312,7 @@ function animate() {
 
             console.log(Math.cos(angle) * 10);
 
-            health2.value -= 10;
+            health2.value -= 5;
             player1.isAttacking = false;
         }
     }
@@ -275,7 +332,7 @@ function animate() {
 
             console.log(Math.cos(angle) * 10);
 
-            health1.value -= 10;
+            health1.value -= 5;
             player2.isAttacking = false;
         }
     }
@@ -355,12 +412,14 @@ window.addEventListener("keydown", (event) => {
         case "d": keys.d.pressed = true; break;
         case "a": keys.a.pressed = true; break;
         case "w": player1.jump(); break;
-        case "e": player1.attack(); break;
+        case "r": player1.attack(); break;
+        case "t": player1.dash(); break;
 
         case "ArrowRight": keys.right.pressed = true; break;
         case "ArrowLeft": keys.left.pressed = true; break;
         case "ArrowUp": player2.jump(); break;
-        case "/": player2.attack(); break;
+        case ".": player2.attack(); break;
+        case ",": player2.dash(); break;
     }
 });
 

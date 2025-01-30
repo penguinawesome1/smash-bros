@@ -22,8 +22,8 @@ class Player extends Sprite {
             height: 10,
         }
 
-        this.grounded = false;
         this.jumps = maxJumps;
+        this.dashes = maxDashes;
         this.lastDirection = "right";
         this.animations = animations;
 
@@ -83,7 +83,7 @@ class Player extends Sprite {
     }
 
     attack() {
-        if (this.cooldown) return;
+        if (this.cooldownAttack) return;
         
         if (this.lastDirection === "right") {
             this.switchSprite("Attack1");
@@ -92,19 +92,29 @@ class Player extends Sprite {
         }
 
         this.isAttacking = true;
-        this.cooldown = true;
+        this.cooldownAttack = true;
         setTimeout(() => {
             this.isAttacking = false;
         }, 150);
         setTimeout(() => {
-            this.cooldown = false;
+            this.cooldownAttack = false;
         }, 500);
     }
 
     jump() {
         if (this.jumps < 1) return;
-        this.velocity.y = -5;
+        this.velocity.y = jumpStrength;
         this.jumps--;
+    }
+
+    dash() {
+        if (this.dashes < 1 || this.cooldownDash) return;
+        this.velocity.x = this.lastDirection === "right" ? dashStrength : -1 * dashStrength;
+        this.dashes--;
+        this.cooldownDash = true;
+        setTimeout(() => {
+            this.cooldownDash = false;
+        }, 1000);
     }
 
     updateHitbox() {
@@ -173,10 +183,11 @@ class Player extends Sprite {
             if (collision({
                 object1: this.hitbox,
                 object2: collisionBlock,
-                type: this,
             })) {
                 if (this.velocity.y > 0) {
                     this.velocity.y = 0;
+                    this.jumps = maxJumps;
+                    this.dashes = maxDashes;
 
                     const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
 
@@ -201,10 +212,11 @@ class Player extends Sprite {
             if (platformCollision({
                 object1: this.hitbox,
                 object2: platformCollisionBlock,
-                type: this,
             })) {
                 if (this.velocity.y > 0) {
                     this.velocity.y = 0;
+                    this.jumps = maxJumps;
+                    this.dashes = maxDashes;
 
                     const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
 

@@ -16,11 +16,11 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const scaledCanvas = {
-    width: canvas.width / 4,
-    height: canvas.height / 4,
+    scale: 3,
+    width: canvas.width / this.scale,
+    height: canvas.height / this.scale,
     transX: 0,
     transY: -175,
-    scale: 3,
     width: canvas.width / this.scale,
     height: canvas.height / this.scale,
 }
@@ -134,6 +134,7 @@ const player1 = new Player({
         x: 200,
         y: 300,
     },
+    // scale: 0.2,
     collisionBlocks,
     platformCollisionBlocks,
     imageSrc: `./img/${player1Type}/Idle.png`,
@@ -194,7 +195,7 @@ const player1 = new Player({
 
 const player2 = new Player({
     position: {
-        x: 200,
+        x: 400,
         y: 300,
     },
     collisionBlocks,
@@ -255,6 +256,8 @@ const player2 = new Player({
     }
 });
 
+player2.lastDirection = "left";
+
 const keys = {
     d: {
         pressed: false,
@@ -307,8 +310,8 @@ function animate() {
                 object1: player1.attackBox,
                 object2: player2.hitbox,
             });
-            player2.velocity.x = Math.cos(angle) * 2000 / health2.value;
-            player2.velocity.y = Math.sin(angle) * 700 / health2.value;
+            player2.velocity.x += Math.cos(angle) * 2000 / health2.value;
+            player2.velocity.y += Math.sin(angle) * 700 / health2.value;
 
             console.log(Math.cos(angle) * 10);
 
@@ -327,8 +330,8 @@ function animate() {
                 object1: player2.attackBox,
                 object2: player1.hitbox,
             });
-            player1.velocity.x = Math.cos(angle) * 2000 / health1.value;
-            player1.velocity.y = Math.sin(angle) * 700 / health1.value;
+            player1.velocity.x += Math.cos(angle) * 2000 / health1.value;
+            player1.velocity.y += Math.sin(angle) * 700 / health1.value;
 
             console.log(Math.cos(angle) * 10);
 
@@ -336,6 +339,31 @@ function animate() {
             player2.isAttacking = false;
         }
     }
+
+    // if (collision({
+    //     object1: player1.hitbox,
+    //     object2: player2.hitbox,
+    // })) {
+    //     const players = [player1, player2];
+    //     for (let i = 0; i < 2; i++) {
+    //         const player = players[i];
+    //         const otherPlayer = players[1 - i];
+
+    //         if (player.velocity.x > 0) {
+    //             player.velocity.x = 0;
+    
+    //             const offset = player.hitbox.position.x - player.position.x + player.hitbox.width;
+    
+    //             player.position.x = otherPlayer.position.x - offset - 0.01;
+    //         } else if (player.velocity.x < 0) {
+    //             player.velocity.x = 0;
+    
+    //             const offset = player.hitbox.position.x - player.position.x;
+                
+    //             player.position.x = otherPlayer.position.x + otherPlayer.width - offset + 0.01;
+    //         }
+    //     }
+    // }
 
     player1.velocity.x *= slowDownMultiplier;
     if (keys.d.pressed && !keys.a.pressed) {
@@ -408,27 +436,27 @@ function animate() {
 animate();
 
 window.addEventListener("keydown", (event) => {
-    switch (event.key) {
-        case "d": keys.d.pressed = true; break;
-        case "a": keys.a.pressed = true; break;
-        case "w": player1.jump(); break;
-        case "r": player1.attack(); break;
-        case "t": player1.dash(); break;
+    switch (event.key.toUpperCase()) {
+        case "D": keys.d.pressed = true; break;
+        case "A": keys.a.pressed = true; break;
+        case "W": player1.jump(); break;
+        case "E": player1.attack(); break;
+        case "SHIFT": player1.dash(); break;
 
-        case "ArrowRight": keys.right.pressed = true; break;
-        case "ArrowLeft": keys.left.pressed = true; break;
-        case "ArrowUp": player2.jump(); break;
-        case ".": player2.attack(); break;
-        case ",": player2.dash(); break;
+        case "ARROWRIGHT": keys.right.pressed = true; break;
+        case "ARROWLEFT": keys.left.pressed = true; break;
+        case "ARROWUP": player2.jump(); break;
+        case "/": player2.attack(); break;
+        case ".": player2.dash(); break;
     }
 });
 
 window.addEventListener("keyup", (event) => {
-    switch (event.key) {
-        case "d": keys.d.pressed = false; break;
-        case "a": keys.a.pressed = false; break;
+    switch (event.key.toUpperCase()) {
+        case "D": keys.d.pressed = false; break;
+        case "A": keys.a.pressed = false; break;
 
-        case "ArrowRight": keys.right.pressed = false; break;
-        case "ArrowLeft": keys.left.pressed = false; break;
+        case "ARROWRIGHT": keys.right.pressed = false; break;
+        case "ARROWLEFT": keys.left.pressed = false; break;
     }
 });

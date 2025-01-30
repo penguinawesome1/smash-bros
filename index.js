@@ -1,19 +1,33 @@
+// Function to get query parameters from the URL
+function getParameterByName(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+    var results = regex.exec(url);
+    if (!results) return null; // Handle the case where the parameter is not found at all
+  
+    //Check if there is a value after the =
+    if (!results[2]) return ""; //if the param exists but has no value, return empty string
+  
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+const selectedMap = getParameterByName("map") !== null ? getParameterByName("map") : "farm";
+
 const canvas = document.getElementById("game-board");
 const c = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
 const maxJumps = 2;
 const maxDashes = 2;
 const gravity = 0.2;
-const slowDownMultiplier = 0.8;
+const frictionMultiplier = 0.8;
 const playerSpeed = 0.6;
 const dashStrength = 15;
 const jumpStrength = -6;
 const player1Type = "player1";
 const player2Type = "player2";
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
 
 const scaledCanvas = {
     scale: 3,
@@ -64,69 +78,6 @@ platformCollisions2D.forEach((row, y) => {
             );
         }
     });
-});
-
-const hi = new Player({
-    position: {
-        x: 100,
-        y: 300,
-    },
-    collisionBlocks,
-    platformCollisionBlocks,
-    imageSrc: `./img/${player1Type}/Idle.png`,
-    frameRate: 8,
-    animations: {
-        Idle: {
-            imageSrc: `./img/${player1Type}/Idle.png`,
-            frameRate: 8,
-            frameBuffer: 8,
-        },
-        IdleLeft: {
-            imageSrc: `./img/${player1Type}/IdleLeft.png`,
-            frameRate: 8,
-            frameBuffer: 8,
-        },
-        Run: {
-            imageSrc: `./img/${player1Type}/Run.png`,
-            frameRate: 8,
-            frameBuffer: 14,
-        },
-        RunLeft: {
-            imageSrc: `./img/${player1Type}/RunLeft.png`,
-            frameRate: 8,
-            frameBuffer: 14,
-        },
-        Jump: {
-            imageSrc: `./img/${player1Type}/Jump.png`,
-            frameRate: 2,
-            frameBuffer: 8,
-        },
-        JumpLeft: {
-            imageSrc: `./img/${player1Type}/JumpLeft.png`,
-            frameRate: 2,
-            frameBuffer: 8,
-        },
-        Fall: {
-            imageSrc: `./img/${player1Type}/Fall.png`,
-            frameRate: 2,
-            frameBuffer: 8,
-        },
-        FallLeft: {
-            imageSrc: `./img/${player1Type}/FallLeft.png`,
-            frameRate: 2,
-            frameBuffer: 8,
-        },
-        Attack1: {
-            imageSrc: `./img/${player1Type}/Attack1.png`,
-            frameRate: 4,
-            frameBuffer: 3,
-        },
-        Attack1Left: {
-            imageSrc: `./img/${player1Type}/Attack1Left.png`,
-            frameRate: 4,
-            frameBuffer: 3,
-        },
-    }
 });
 
 const player1 = new Player({
@@ -256,6 +207,8 @@ const player2 = new Player({
     }
 });
 
+player1.otherPlayer = player2;
+player2.otherPlayer = player1;
 player2.lastDirection = "left";
 
 const keys = {
@@ -278,7 +231,7 @@ const background = new Sprite({
         x: 0,
         y: 0,
     },
-    imageSrc: "./img/backgrounds/farm.png",
+    imageSrc: `./img/backgrounds/${selectedMap}.png`,
 });
 
 function animate() {
@@ -313,8 +266,6 @@ function animate() {
             player2.velocity.x += Math.cos(angle) * 2000 / health2.value;
             player2.velocity.y += Math.sin(angle) * 700 / health2.value;
 
-            console.log(Math.cos(angle) * 10);
-
             health2.value -= 5;
             player1.isAttacking = false;
         }
@@ -333,39 +284,11 @@ function animate() {
             player1.velocity.x += Math.cos(angle) * 2000 / health1.value;
             player1.velocity.y += Math.sin(angle) * 700 / health1.value;
 
-            console.log(Math.cos(angle) * 10);
-
             health1.value -= 5;
             player2.isAttacking = false;
         }
     }
-
-    // if (collision({
-    //     object1: player1.hitbox,
-    //     object2: player2.hitbox,
-    // })) {
-    //     const players = [player1, player2];
-    //     for (let i = 0; i < 2; i++) {
-    //         const player = players[i];
-    //         const otherPlayer = players[1 - i];
-
-    //         if (player.velocity.x > 0) {
-    //             player.velocity.x = 0;
     
-    //             const offset = player.hitbox.position.x - player.position.x + player.hitbox.width;
-    
-    //             player.position.x = otherPlayer.position.x - offset - 0.01;
-    //         } else if (player.velocity.x < 0) {
-    //             player.velocity.x = 0;
-    
-    //             const offset = player.hitbox.position.x - player.position.x;
-                
-    //             player.position.x = otherPlayer.position.x + otherPlayer.width - offset + 0.01;
-    //         }
-    //     }
-    // }
-
-    player1.velocity.x *= slowDownMultiplier;
     if (keys.d.pressed && !keys.a.pressed) {
         player1Sprite = "Run";
         player1.velocity.x += playerSpeed;
@@ -395,8 +318,7 @@ function animate() {
             player1Sprite = "FallLeft";
         }
     }
-
-    player2.velocity.x *= slowDownMultiplier;
+    
     if (keys.right.pressed && !keys.left.pressed) {
         player2Sprite = "Run";
         player2.velocity.x += playerSpeed;

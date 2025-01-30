@@ -39,6 +39,8 @@ class Player extends Sprite {
             width: 0,
             height: 0,
         }
+
+        this.otherPlayer = null;
     }
 
     switchSprite(key) {
@@ -72,12 +74,13 @@ class Player extends Sprite {
         // }
         
         this.draw();
-
-        this.position.x += this.velocity.x;
+        
+        this.applyFriction();
         this.updateHitbox();
         this.checkForHorizontalCollisions();
+        this.checkForPlayerCollisions();
+        
         this.applyGravity();
-        // this.applyFriction();
         this.updateHitbox();
         this.checkForVerticalCollisions();
     }
@@ -101,7 +104,7 @@ class Player extends Sprite {
             setTimeout(() => {
                 this.cooldownAttack = false;
             }, 500);
-        }, 150);
+        }, 100);
     }
 
     jump() {
@@ -140,6 +143,27 @@ class Player extends Sprite {
         }
     }
 
+    checkForPlayerCollisions() {
+        if (collision({
+            object1: this.hitbox,
+            object2: this.otherPlayer.hitbox,
+        })) {
+            if (this.velocity.x > 0) {
+                this.velocity.x = 0;
+    
+                const offset = this.hitbox.position.x - this.position.x + this.hitbox.width;
+    
+                this.position.x = this.otherPlayer.hitbox.position.x - offset - 0.01;
+            } else if (this.velocity.x < 0) {
+                this.velocity.x = 0;
+    
+                const offset = this.hitbox.position.x - this.position.x;
+                
+                this.position.x = this.otherPlayer.hitbox.position.x + this.otherPlayer.hitbox.width - offset + 0.01;
+            }
+        }
+    }
+
     checkForHorizontalCollisions() {
         for (let i = 0; i < this.collisionBlocks.length; i++) {
             const collisionBlock = this.collisionBlocks[i];
@@ -174,7 +198,7 @@ class Player extends Sprite {
     }
 
     applyFriction() {
-        this.velocity.x += friction;
+        this.velocity.x *= frictionMultiplier;
         this.position.x += this.velocity.x;
     }
 

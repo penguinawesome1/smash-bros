@@ -5,7 +5,7 @@ class Player extends Sprite {
         platformCollisionBlocks,
         imageSrc,
         frameRate,
-        scale = .5,
+        scale = .4,
         animations
     }) {
         super({ position, imageSrc, frameRate, scale });
@@ -91,14 +91,17 @@ class Player extends Sprite {
             this.switchSprite("Attack1Left");
         }
 
-        this.isAttacking = true;
         this.cooldownAttack = true;
         setTimeout(() => {
-            this.isAttacking = false;
+            this.isAttacking = true;
+
+            setTimeout(() => {
+                this.isAttacking = false;
+            }, 150);
+            setTimeout(() => {
+                this.cooldownAttack = false;
+            }, 500);
         }, 150);
-        setTimeout(() => {
-            this.cooldownAttack = false;
-        }, 500);
     }
 
     jump() {
@@ -120,20 +123,20 @@ class Player extends Sprite {
     updateHitbox() {
         this.hitbox = {
             position: {
-                x: this.position.x + 22,
+                x: this.position.x + 44 * this.scale,
                 y: this.position.y,
             },
-            width: 35,
-            height: 55,
+            width: 70 * this.scale,
+            height: 110 * this.scale,
         }
 
         this.attackBox = {
             position: {
-                x: this.position.x + 27 + 13 * (this.lastDirection === "right" ? 1 : -1),
-                y: this.position.y + 13,
+                x: this.position.x + this.scale * (54 + 26 * (this.lastDirection === "right" ? 1 : -1)),
+                y: this.position.y + 23 * this.scale,
             },
-            width: 25,
-            height: 7,
+            width: 53 * this.scale,
+            height: 20 * this.scale,
         }
     }
 
@@ -144,7 +147,6 @@ class Player extends Sprite {
             if (collision({
                 object1: this.hitbox,
                 object2: collisionBlock,
-                type: this,
             })) {
                 if (this.velocity.x > 0) {
                     this.velocity.x = 0;

@@ -12,7 +12,7 @@ class Player extends Sprite {
         this.position = position;
         this.velocity = {
             x: 0,
-            y: 1,
+            y: 0,
         }
         this.collisionBlocks = collisionBlocks;
         this.platformCollisionBlocks = platformCollisionBlocks;
@@ -22,6 +22,8 @@ class Player extends Sprite {
             height: 10,
         }
 
+        this.otherPlayer = null;
+        this.lives = maxLives;
         this.jumps = maxJumps;
         this.dashes = maxDashes;
         this.lastDirection = "right";
@@ -39,8 +41,6 @@ class Player extends Sprite {
             width: 0,
             height: 0,
         }
-
-        this.otherPlayer = null;
     }
 
     switchSprite(key) {
@@ -83,6 +83,8 @@ class Player extends Sprite {
         this.applyGravity();
         this.updateHitbox();
         this.checkForVerticalCollisions();
+
+        this.checkForDeath();
     }
 
     attack() {
@@ -121,6 +123,24 @@ class Player extends Sprite {
         setTimeout(() => {
             this.cooldownDash = false;
         }, 1000);
+    }
+
+    checkForDeath() {
+        if (this.position.y > 3000) {
+            this.lives--;
+            if (this.lives < 1) {
+                gameOver(this === player1 ? 2 : 1);
+            } else {
+                if (this === player1) {
+                    this.position = { ...player1Respawn };
+                    health1.value = 100;
+                } else {
+                    this.position = { ...player2Respawn };
+                    health2.value = 100;
+                }
+                this.velocity = { x: 0, y: 0 };
+            }
+        }
     }
 
     updateHitbox() {

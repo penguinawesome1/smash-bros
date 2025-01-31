@@ -21,6 +21,7 @@ const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
 const maxJumps = 2;
 const maxDashes = 2;
+const maxLives = 3;
 const gravity = 0.2;
 const frictionMultiplier = 0.8;
 const playerSpeed = 0.6;
@@ -28,6 +29,14 @@ const dashStrength = 15;
 const jumpStrength = -6;
 const player1Type = "player1";
 const player2Type = "player2";
+const player1Respawn = {
+    x: 200,
+    y: 300,
+};
+const player2Respawn = {
+    x: 400,
+    y: 300,
+};
 
 const scaledCanvas = {
     scale: 3,
@@ -81,10 +90,7 @@ platformCollisions2D.forEach((row, y) => {
 });
 
 const player1 = new Player({
-    position: {
-        x: 200,
-        y: 300,
-    },
+    position: { ...player1Respawn },
     // scale: 0.2,
     collisionBlocks,
     platformCollisionBlocks,
@@ -145,10 +151,7 @@ const player1 = new Player({
 });
 
 const player2 = new Player({
-    position: {
-        x: 400,
-        y: 300,
-    },
+    position: { ...player2Respawn },
     collisionBlocks,
     platformCollisionBlocks,
     imageSrc: `./img/${player1Type}/Idle.png`,
@@ -218,10 +221,16 @@ const keys = {
     a: {
         pressed: false,
     },
+    s: {
+        pressed: false,
+    },
     left: {
         pressed: false,
     },
     right: {
+        pressed: false,
+    },
+    down: {
         pressed: false,
     },
 };
@@ -266,7 +275,7 @@ function animate() {
             player2.velocity.x += Math.cos(angle) * 2000 / health2.value;
             player2.velocity.y += Math.sin(angle) * 700 / health2.value;
 
-            health2.value -= 5;
+            health2.value -= 10;
             player1.isAttacking = false;
         }
     }
@@ -284,7 +293,7 @@ function animate() {
             player1.velocity.x += Math.cos(angle) * 2000 / health1.value;
             player1.velocity.y += Math.sin(angle) * 700 / health1.value;
 
-            health1.value -= 5;
+            health1.value -= 10;
             player2.isAttacking = false;
         }
     }
@@ -355,18 +364,28 @@ function animate() {
     c.restore();
 }
 
+function gameOver(winner) {
+    document.getElementById("game-over-popup").classList.remove("hidden");
+    document.getElementById("winner").innerText = winner;
+    setTimeout(() => {
+        location.reload();
+    }, 3000);
+}
+
 animate();
 
 window.addEventListener("keydown", (event) => {
     switch (event.key.toUpperCase()) {
         case "D": keys.d.pressed = true; break;
         case "A": keys.a.pressed = true; break;
+        case "S": keys.s.pressed = true; break;
         case "W": player1.jump(); break;
         case "E": player1.attack(); break;
         case "SHIFT": player1.dash(); break;
 
         case "ARROWRIGHT": keys.right.pressed = true; break;
         case "ARROWLEFT": keys.left.pressed = true; break;
+        case "ARROWDOWN": keys.down.pressed = true; break;
         case "ARROWUP": player2.jump(); break;
         case "/": player2.attack(); break;
         case ".": player2.dash(); break;
@@ -377,8 +396,10 @@ window.addEventListener("keyup", (event) => {
     switch (event.key.toUpperCase()) {
         case "D": keys.d.pressed = false; break;
         case "A": keys.a.pressed = false; break;
+        case "S": keys.s.pressed = false; break;
 
         case "ARROWRIGHT": keys.right.pressed = false; break;
         case "ARROWLEFT": keys.left.pressed = false; break;
+        case "ARROWDOWN": keys.down.pressed = false; break;
     }
 });

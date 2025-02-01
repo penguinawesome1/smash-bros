@@ -25,7 +25,9 @@ const maxLives = 3;
 const gravity = 0.2;
 const frictionMultiplier = 0.8;
 const playerSpeed = 0.6;
-const dashStrength = 15;
+const dashStrength = 20;
+const dashCooldown = 1000;
+const attackCooldown = 500;
 const jumpStrength = -6;
 const player1Type = "player1";
 const player2Type = "player2";
@@ -212,28 +214,9 @@ const player2 = new Player({
 
 player1.otherPlayer = player2;
 player2.otherPlayer = player1;
+player1.healthBar = health1;
+player2.healthBar = health2;
 player2.lastDirection = "left";
-
-const keys = {
-    d: {
-        pressed: false,
-    },
-    a: {
-        pressed: false,
-    },
-    s: {
-        pressed: false,
-    },
-    left: {
-        pressed: false,
-    },
-    right: {
-        pressed: false,
-    },
-    down: {
-        pressed: false,
-    },
-};
 
 const background = new Sprite({
     position: {
@@ -261,105 +244,6 @@ function animate() {
 
     player1.update();
     player2.update();
-    
-    if (player1.isAttacking) {
-        const hitPlayer2 = collision({
-            object1: player1.attackBox,
-            object2: player2.hitbox,
-        });
-        if (hitPlayer2) {
-            const angle = calcAngle({
-                object1: player1.attackBox,
-                object2: player2.hitbox,
-            });
-            player2.velocity.x += Math.cos(angle) * 2000 / health2.value;
-            player2.velocity.y += Math.sin(angle) * 700 / health2.value;
-
-            health2.value -= 10;
-            player1.isAttacking = false;
-        }
-    }
-    if (player2.isAttacking) {
-        const hitPlayer1 = collision({
-            object1: player2.attackBox,
-            object2: player1.hitbox,
-        });
-    
-        if (hitPlayer1) {
-            const angle = calcAngle({
-                object1: player2.attackBox,
-                object2: player1.hitbox,
-            });
-            player1.velocity.x += Math.cos(angle) * 2000 / health1.value;
-            player1.velocity.y += Math.sin(angle) * 700 / health1.value;
-
-            health1.value -= 10;
-            player2.isAttacking = false;
-        }
-    }
-    
-    if (keys.d.pressed && !keys.a.pressed) {
-        player1Sprite = "Run";
-        player1.velocity.x += playerSpeed;
-        player1.lastDirection = "right";
-    } else if (keys.a.pressed && !keys.d.pressed) {
-        player1Sprite = "RunLeft";
-        player1.velocity.x += -playerSpeed;
-        player1.lastDirection = "left";
-    } else if (player1.velocity.y === 0) {
-        if (player1.lastDirection === "right") {
-            player1Sprite = "Idle";
-        } else {
-            player1Sprite = "IdleLeft";
-        }
-    }
-
-    if (player1.velocity.y < 0) {
-        if (player1.lastDirection === "right") {
-            player1Sprite = "Jump";
-        } else {
-            player1Sprite = "JumpLeft";
-        }
-    } else if (player1.velocity.y > 0) {
-        if (player1.lastDirection === "right") {
-            player1Sprite = "Fall";
-        } else {
-            player1Sprite = "FallLeft";
-        }
-    }
-    
-    if (keys.right.pressed && !keys.left.pressed) {
-        player2Sprite = "Run";
-        player2.velocity.x += playerSpeed;
-        if (!player2.isAttacking) player2.lastDirection = "right";
-    } else if (keys.left.pressed && !keys.right.pressed) {
-        player2Sprite = "RunLeft";
-        player2.velocity.x += -playerSpeed;
-        if (!player2.isAttacking) player2.lastDirection = "left";
-    } else if (player2.velocity.y === 0) {
-        if (player2.lastDirection === "right") {
-            player2Sprite = "Idle";
-        } else {
-            player2Sprite = "IdleLeft";
-        }
-    }
-
-    if (player2.velocity.y < 0) {
-        if (player2.lastDirection === "right") {
-            player2Sprite = "Jump";
-        } else {
-            player2Sprite = "JumpLeft";
-        }
-    } else if (player2.velocity.y > 0) {
-        if (player2.lastDirection === "right") {
-            player2Sprite = "Fall";
-        } else {
-            player2Sprite = "FallLeft";
-        }
-    }
-
-    player1.switchSprite(player1Sprite);
-    player2.switchSprite(player2Sprite);
 
     c.restore();
 }
@@ -376,16 +260,16 @@ animate();
 
 window.addEventListener("keydown", (event) => {
     switch (event.key.toUpperCase()) {
-        case "D": keys.d.pressed = true; break;
-        case "A": keys.a.pressed = true; break;
-        case "S": keys.s.pressed = true; break;
+        case "D": player1.keys.right.pressed = true; break;
+        case "A": player1.keys.left.pressed = true; break;
+        case "S": player1.keys.down.pressed = true; break;
         case "W": player1.jump(); break;
         case "E": player1.attack(); break;
         case "SHIFT": player1.dash(); break;
 
-        case "ARROWRIGHT": keys.right.pressed = true; break;
-        case "ARROWLEFT": keys.left.pressed = true; break;
-        case "ARROWDOWN": keys.down.pressed = true; break;
+        case "ARROWRIGHT": player2.keys.right.pressed = true; break;
+        case "ARROWLEFT": player2.keys.left.pressed = true; break;
+        case "ARROWDOWN": player2.keys.down.pressed = true; break;
         case "ARROWUP": player2.jump(); break;
         case "/": player2.attack(); break;
         case ".": player2.dash(); break;
@@ -394,12 +278,12 @@ window.addEventListener("keydown", (event) => {
 
 window.addEventListener("keyup", (event) => {
     switch (event.key.toUpperCase()) {
-        case "D": keys.d.pressed = false; break;
-        case "A": keys.a.pressed = false; break;
-        case "S": keys.s.pressed = false; break;
+        case "D": player1.keys.right.pressed = false; break;
+        case "A": player1.keys.left.pressed = false; break;
+        case "S": player1.keys.down.pressed = false; break;
 
-        case "ARROWRIGHT": keys.right.pressed = false; break;
-        case "ARROWLEFT": keys.left.pressed = false; break;
-        case "ARROWDOWN": keys.down.pressed = false; break;
+        case "ARROWRIGHT": player2.keys.right.pressed = false; break;
+        case "ARROWLEFT": player2.keys.left.pressed = false; break;
+        case "ARROWDOWN": player2.keys.down.pressed = false; break;
     }
 });

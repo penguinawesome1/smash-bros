@@ -23,6 +23,7 @@ class Player extends Sprite {
         }
 
         this.otherPlayer = null;
+        this.healthBar = null;
         this.lives = maxLives;
         this.jumps = maxJumps;
         this.dashes = maxDashes;
@@ -41,6 +42,18 @@ class Player extends Sprite {
             width: 0,
             height: 0,
         }
+
+        this.keys = {
+            left: {
+                pressed: false,
+            },
+            right: {
+                pressed: false,
+            },
+            down: {
+                pressed: false,
+            },
+        };
     }
 
     switchSprite(key) {
@@ -74,6 +87,8 @@ class Player extends Sprite {
         // }
         
         this.draw();
+
+        this.checkForKeys();
         
         this.applyFriction();
         this.updateHitbox();
@@ -84,6 +99,7 @@ class Player extends Sprite {
         this.updateHitbox();
         this.checkForVerticalCollisions();
 
+        this.checkForHit();
         this.checkForDeath();
     }
 
@@ -105,7 +121,7 @@ class Player extends Sprite {
             }, 150);
             setTimeout(() => {
                 this.cooldownAttack = false;
-            }, 500);
+            }, attackCooldown);
         }, 100);
     }
 
@@ -122,7 +138,27 @@ class Player extends Sprite {
         this.cooldownDash = true;
         setTimeout(() => {
             this.cooldownDash = false;
-        }, 1000);
+        }, dashCooldown);
+    }
+
+    checkForHit() {
+        if (this.isAttacking) {
+            const hitOtherPlayer = collision({
+                object1: this.attackBox,
+                object2: this.otherPlayer.hitbox,
+            });
+            if (hitOtherPlayer) {
+                const angle = calcAngle({
+                    object1: this.attackBox,
+                    object2: this.otherPlayer.hitbox,
+                });
+                this.otherPlayer.velocity.x += Math.cos(angle) * 2000 / this.otherPlayer.healthBar.value;
+                this.otherPlayer.velocity.y += Math.sin(angle) * 700 / this.otherPlayer.healthBar.value;
+    
+                this.otherPlayer.healthBar.value -= 10;
+                this.isAttacking = false;
+            }
+        }
     }
 
     checkForDeath() {
@@ -133,14 +169,49 @@ class Player extends Sprite {
             } else {
                 if (this === player1) {
                     this.position = { ...player1Respawn };
-                    health1.value = 100;
                 } else {
                     this.position = { ...player2Respawn };
-                    health2.value = 100;
                 }
+                this.healthBar.value = 100;
                 this.velocity = { x: 0, y: 0 };
             }
         }
+    }
+
+    checkForKeys() {
+        let sprite = "Idle";
+        
+        if (this.keys.right.pressed && !this.keys.left.pressed) {
+            sprite = "Run";
+            this.velocity.x += playerSpeed;
+            if (!this.isAttacking) this.lastDirection = "right";
+        } else if (this.keys.left.pressed && !this.keys.right.pressed) {
+            sprite = "RunLeft";
+            this.velocity.x += -playerSpeed;
+            if (!this.isAttacking) this.lastDirection = "left";
+        } else if (this.velocity.y === 0) {
+            if (this.lastDirection === "right") {
+                sprite = "Idle";
+            } else {
+                sprite = "IdleLeft";
+            }
+        }
+    
+        if (this.velocity.y < 0) {
+            if (this.lastDirection === "right") {
+                sprite = "Jump";
+            } else {
+                sprite = "JumpLeft";
+            }
+        } else if (this.velocity.y > 0) {
+            if (this.lastDirection === "right") {
+                sprite = "Fall";
+            } else {
+                sprite = "FallLeft";
+            }
+        }
+
+        this.switchSprite(sprite);
     }
 
     updateHitbox() {

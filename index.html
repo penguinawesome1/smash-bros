@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Space Invaders</title>
-    <link rel="icon" type="image/png" href="./images/logo.png">
+    <link rel="icon" type="image/png" href="./img/logo.png">
     <script src="./js/utils.js" defer></script>
     <script src="./js/classes/CollisionBlock.js" defer></script>
     <script src="./js/classes/Sprite.js" defer></script>
@@ -20,7 +20,9 @@
     </style>
 </head>
 <body>
-    <div id="game-over-popup" class="z-30 hidden absolute top-0 left-0 w-full h-72 bg-white bg-opacity-90 flex justify-center items-center border-b-16 border-b-gray-200">
+    <img id="arrow-1" class="z-30 w-20 aspect-square absolute top-10 left-4" src="./img/arrow.svg">
+    <img id="arrow-2" class="z-30 w-20 aspect-square absolute top-10 left-4" src="./img/arrow.svg">
+    <div id="game-over-popup" class="z-20 hidden absolute top-0 left-0 w-full h-72 bg-white bg-opacity-90 flex justify-center items-center border-b-16 border-b-gray-200">
         <p class="text-6xl">Player <span id="winner">1</span> Wins!</p>
     </div>
     <progress id="health1" class="z-10 absolute left-4 top-4 h-8 w-72 border border-4 border-white" value="100" max="100"></progress>        

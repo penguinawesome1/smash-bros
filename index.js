@@ -28,7 +28,8 @@ const playerSpeed = 0.6;
 const dashStrength = 20;
 const dashCooldown = 1000;
 const attackCooldown = 500;
-const jumpStrength = -6;
+const smashStrength = 10;
+const jumpStrength = 6;
 const player1Type = "player1";
 const player2Type = "player2";
 const player1Respawn = {
@@ -262,14 +263,14 @@ window.addEventListener("keydown", (event) => {
     switch (event.key.toUpperCase()) {
         case "D": player1.keys.right.pressed = true; break;
         case "A": player1.keys.left.pressed = true; break;
-        case "S": player1.keys.down.pressed = true; break;
+        case "S": player1.smash(); break;
         case "W": player1.jump(); break;
         case "E": player1.attack(); break;
         case "SHIFT": player1.dash(); break;
 
         case "ARROWRIGHT": player2.keys.right.pressed = true; break;
         case "ARROWLEFT": player2.keys.left.pressed = true; break;
-        case "ARROWDOWN": player2.keys.down.pressed = true; break;
+        case "ARROWDOWN": player2.smash(); break;
         case "ARROWUP": player2.jump(); break;
         case "/": player2.attack(); break;
         case ".": player2.dash(); break;
@@ -280,10 +281,10 @@ window.addEventListener("keyup", (event) => {
     switch (event.key.toUpperCase()) {
         case "D": player1.keys.right.pressed = false; break;
         case "A": player1.keys.left.pressed = false; break;
-        case "S": player1.keys.down.pressed = false; break;
+        // case "S": player1.keys.down.pressed = false; break;
 
         case "ARROWRIGHT": player2.keys.right.pressed = false; break;
         case "ARROWLEFT": player2.keys.left.pressed = false; break;
-        case "ARROWDOWN": player2.keys.down.pressed = false; break;
+        // case "ARROWDOWN": player2.keys.down.pressed = false; break;
     }
 });

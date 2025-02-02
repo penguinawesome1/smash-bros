@@ -93,14 +93,17 @@ class Player extends Sprite {
         this.applyFriction();
         this.updateHitbox();
         this.checkForHorizontalCollisions();
-        this.checkForPlayerCollisions();
-        
+        // this.checkForHorizontalPlayerCollisions();
+
         this.applyGravity();
         this.updateHitbox();
         this.checkForVerticalCollisions();
+        this.checkForVerticalPlayerCollisions();
 
         this.checkForHit();
         this.checkForDeath();
+
+        this.updateArrow();
     }
 
     attack() {
@@ -127,7 +130,7 @@ class Player extends Sprite {
 
     jump() {
         if (this.jumps < 1) return;
-        this.velocity.y = jumpStrength;
+        this.velocity.y = -jumpStrength;
         this.jumps--;
     }
 
@@ -141,13 +144,32 @@ class Player extends Sprite {
         }, dashCooldown);
     }
 
+    smash() {
+        const grounded = this.jumps === maxJumps;
+        if (grounded || this.smashing) return;
+        this.velocity.y = 0;
+        setTimeout(() => {
+            this.velocity.y = smashStrength;
+            this.smashing = true;
+        }, 100);
+    }
+
+    applyGravity() {
+        this.velocity.y += gravity;
+        this.position.y += this.velocity.y;
+    }
+
+    applyFriction() {
+        this.velocity.x *= frictionMultiplier;
+        this.position.x += this.velocity.x;
+    }
+
     checkForHit() {
         if (this.isAttacking) {
-            const hitOtherPlayer = collision({
+            if (collision({
                 object1: this.attackBox,
                 object2: this.otherPlayer.hitbox,
-            });
-            if (hitOtherPlayer) {
+            })) {
                 const angle = calcAngle({
                     object1: this.attackBox,
                     object2: this.otherPlayer.hitbox,
@@ -167,14 +189,45 @@ class Player extends Sprite {
             if (this.lives < 1) {
                 gameOver(this === player1 ? 2 : 1);
             } else {
-                if (this === player1) {
-                    this.position = { ...player1Respawn };
-                } else {
-                    this.position = { ...player2Respawn };
-                }
+                this.position = this === player1 ? { ...player1Respawn } : { ...player2Respawn };
                 this.healthBar.value = 100;
                 this.velocity = { x: 0, y: 0 };
             }
+        }
+    }
+
+    updateArrow() {
+        const arrow = this === player1 ? document.getElementById("arrow-1") : document.getElementById("arrow-2");
+        if (this.position.y > 0) {
+            arrow.classList.add("hidden");
+            return;
+        }
+        arrow.classList.remove("hidden");
+
+        const x = this.position.x * scaledCanvas.scale;
+        const cWidth = canvas.width;
+        if (x < 0) arrow.style.left = "0px";
+        else if (x > cWidth - 100) arrow.style.left = `${cWidth - 100}px`;
+        else arrow.style.left = this.position.x * scaledCanvas.scale + "px";
+    }
+
+    updateHitbox() {
+        this.hitbox = {
+            position: {
+                x: this.position.x + 44 * this.scale,
+                y: this.position.y,
+            },
+            width: 70 * this.scale,
+            height: 110 * this.scale,
+        }
+
+        this.attackBox = {
+            position: {
+                x: this.position.x + this.scale * (54 + 26 * (this.lastDirection === "right" ? 1 : -1)),
+                y: this.position.y + 23 * this.scale,
+            },
+            width: 53 * this.scale,
+            height: 20 * this.scale,
         }
     }
 
@@ -214,27 +267,7 @@ class Player extends Sprite {
         this.switchSprite(sprite);
     }
 
-    updateHitbox() {
-        this.hitbox = {
-            position: {
-                x: this.position.x + 44 * this.scale,
-                y: this.position.y,
-            },
-            width: 70 * this.scale,
-            height: 110 * this.scale,
-        }
-
-        this.attackBox = {
-            position: {
-                x: this.position.x + this.scale * (54 + 26 * (this.lastDirection === "right" ? 1 : -1)),
-                y: this.position.y + 23 * this.scale,
-            },
-            width: 53 * this.scale,
-            height: 20 * this.scale,
-        }
-    }
-
-    checkForPlayerCollisions() {
+    checkForHorizontalPlayerCollisions() {
         if (collision({
             object1: this.hitbox,
             object2: this.otherPlayer.hitbox,
@@ -283,14 +316,25 @@ class Player extends Sprite {
         }
     }
 
-    applyGravity() {
-        this.velocity.y += gravity;
-        this.position.y += this.velocity.y;
-    }
+    checkForVerticalPlayerCollisions() {
+        if (this.velocity.y <= 0) return;
+            
+        if (collision({
+            object1: this.hitbox,
+            object2: this.otherPlayer.hitbox,
+        })) {
+            const angle = calcAngle({
+                object1: this.otherPlayer.hitbox,
+                object2: this.hitbox,
+            });
+            const multiplier = this.smashing ? 2 : 1;
+            this.velocity.x += multiplier * Math.cos(angle) * 2000 / this.healthBar.value;
+            this.velocity.y += multiplier * Math.sin(angle) * 700 / this.healthBar.value;
+            this.otherPlayer.velocity.x -= multiplier * Math.cos(angle) * 1000 / this.otherPlayer.healthBar.value;
+            this.otherPlayer.velocity.y -= multiplier * Math.sin(angle) * 350 / this.otherPlayer.healthBar.value;
 
-    applyFriction() {
-        this.velocity.x *= frictionMultiplier;
-        this.position.x += this.velocity.x;
+            this.otherPlayer.healthBar.value -= 5 * multiplier;
+        }
     }
 
     checkForVerticalCollisions() {
@@ -305,6 +349,7 @@ class Player extends Sprite {
                     this.velocity.y = 0;
                     this.jumps = maxJumps;
                     this.dashes = maxDashes;
+                    this.smashing = false;
 
                     const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
 

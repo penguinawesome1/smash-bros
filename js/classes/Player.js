@@ -44,15 +44,10 @@ class Player extends Sprite {
         }
 
         this.keys = {
-            left: {
-                pressed: false,
-            },
-            right: {
-                pressed: false,
-            },
-            down: {
-                pressed: false,
-            },
+            left: false,
+            right: false,
+            down: false,
+            up: false,
         };
     }
 
@@ -136,7 +131,46 @@ class Player extends Sprite {
 
     dash() {
         if (this.dashes < 1 || this.cooldownDash) return;
-        this.velocity.x = this.lastDirection === "right" ? dashStrength : -1 * dashStrength;
+
+        if (this.keys.up && !this.keys.down) {
+            if (this.keys.left && !this.keys.right) {
+                // up left
+                this.velocity.x = -dashStrength / 1.414;
+                this.velocity.y = -dashStrength / 1.414;
+            } else if (this.keys.right && !this.keys.left) {
+                // up right
+                this.velocity.x = dashStrength / 1.414;
+                this.velocity.y = -dashStrength / 1.414;
+            } else {
+                // up only
+                this.velocity.y = -dashStrength;
+            }
+        } else if (this.keys.down && !this.keys.up) {
+            if (this.keys.left && !this.keys.right) {
+                // down left
+                this.velocity.x = -dashStrength / 1.414;
+                this.velocity.y = dashStrength / 1.414;
+            } else if (this.keys.right && !this.keys.left) {
+                // down right
+                this.velocity.x = dashStrength / 1.414;
+                this.velocity.y = dashStrength / 1.414;
+            } else {
+                // down only
+                this.velocity.y = dashStrength;
+            }
+        } else {
+            if (this.keys.left && !this.keys.right) {
+                // left only
+                this.velocity.x = -dashStrength;
+            } else if (this.keys.right && !this.keys.left) {
+                // right only
+                this.velocity.x = dashStrength;
+            } else {
+                // no direction
+                this.velocity.x = this.lastDirection === "right" ? dashStrength : -1 * dashStrength;
+            }
+        }
+
         this.dashes--;
         this.cooldownDash = true;
         setTimeout(() => {
@@ -165,21 +199,21 @@ class Player extends Sprite {
     }
 
     checkForHit() {
-        if (this.isAttacking) {
-            if (collision({
+        if (!this.isAttacking) return;
+
+        if (collision({
+            object1: this.attackBox,
+            object2: this.otherPlayer.hitbox,
+        })) {
+            const angle = calcAngle({
                 object1: this.attackBox,
                 object2: this.otherPlayer.hitbox,
-            })) {
-                const angle = calcAngle({
-                    object1: this.attackBox,
-                    object2: this.otherPlayer.hitbox,
-                });
-                this.otherPlayer.velocity.x += Math.cos(angle) * 2000 / this.otherPlayer.healthBar.value;
-                this.otherPlayer.velocity.y += Math.sin(angle) * 700 / this.otherPlayer.healthBar.value;
-    
-                this.otherPlayer.healthBar.value -= 10;
-                this.isAttacking = false;
-            }
+            });
+            this.otherPlayer.velocity.x += Math.cos(angle) * 2000 / this.otherPlayer.healthBar.value;
+            this.otherPlayer.velocity.y += Math.sin(angle) * 700 / this.otherPlayer.healthBar.value;
+
+            this.otherPlayer.healthBar.value -= 10;
+            this.isAttacking = false;
         }
     }
 
@@ -234,11 +268,11 @@ class Player extends Sprite {
     checkForKeys() {
         let sprite = "Idle";
         
-        if (this.keys.right.pressed && !this.keys.left.pressed) {
+        if (this.keys.right && !this.keys.left) {
             sprite = "Run";
             this.velocity.x += playerSpeed;
             if (!this.isAttacking) this.lastDirection = "right";
-        } else if (this.keys.left.pressed && !this.keys.right.pressed) {
+        } else if (this.keys.left && !this.keys.right) {
             sprite = "RunLeft";
             this.velocity.x += -playerSpeed;
             if (!this.isAttacking) this.lastDirection = "left";

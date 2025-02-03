@@ -23,9 +23,9 @@ const maxJumps = 2;
 const maxDashes = 2;
 const maxLives = 3;
 const gravity = 0.2;
-const frictionMultiplier = 0.8;
-const playerSpeed = 0.6;
-const dashStrength = 20;
+const frictionMultiplier = 0.9;
+const playerSpeed = 0.3;
+const dashStrength = 7;
 const dashCooldown = 1000;
 const attackCooldown = 500;
 const smashStrength = 10;
@@ -261,17 +261,17 @@ animate();
 
 window.addEventListener("keydown", (event) => {
     switch (event.key.toUpperCase()) {
-        case "D": player1.keys.right.pressed = true; break;
-        case "A": player1.keys.left.pressed = true; break;
-        case "S": player1.smash(); break;
-        case "W": player1.jump(); break;
+        case "D": player1.keys.right = true; break;
+        case "A": player1.keys.left = true; break;
+        case "S": player1.keys.down = true; player1.smash(); break;
+        case "W": player1.keys.up = true; player1.jump(); break;
         case "E": player1.attack(); break;
         case "SHIFT": player1.dash(); break;
 
-        case "ARROWRIGHT": player2.keys.right.pressed = true; break;
-        case "ARROWLEFT": player2.keys.left.pressed = true; break;
-        case "ARROWDOWN": player2.smash(); break;
-        case "ARROWUP": player2.jump(); break;
+        case "ARROWRIGHT": player2.keys.right = true; break;
+        case "ARROWLEFT": player2.keys.left = true; break;
+        case "ARROWDOWN": player2.keys.down = true; player2.smash(); break;
+        case "ARROWUP": player2.keys.up = true; player2.jump(); break;
         case "/": player2.attack(); break;
         case ".": player2.dash(); break;
     }
@@ -279,12 +279,14 @@ window.addEventListener("keydown", (event) => {
 
 window.addEventListener("keyup", (event) => {
     switch (event.key.toUpperCase()) {
-        case "D": player1.keys.right.pressed = false; break;
-        case "A": player1.keys.left.pressed = false; break;
-        // case "S": player1.keys.down.pressed = false; break;
+        case "D": player1.keys.right = false; break;
+        case "A": player1.keys.left = false; break;
+        case "S": player1.keys.down = false; break;
+        case "W": player1.keys.up = false; break;
 
-        case "ARROWRIGHT": player2.keys.right.pressed = false; break;
-        case "ARROWLEFT": player2.keys.left.pressed = false; break;
-        // case "ARROWDOWN": player2.keys.down.pressed = false; break;
+        case "ARROWRIGHT": player2.keys.right = false; break;
+        case "ARROWLEFT": player2.keys.left = false; break;
+        case "ARROWDOWN": player2.keys.down = false; break;
+        case "ARROWUP": player2.keys.up = false; break;
     }
 });

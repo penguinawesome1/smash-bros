@@ -49,11 +49,18 @@ class Player extends Sprite {
             down: false,
             up: false,
         };
+
+        this.bulletList = [];
     }
 
     switchSprite(key) {
         const notLastFrame = this.currentFrame < this.animations.Attack1.frameRate - 1;
-        const attackImage = this.image === this.animations.Attack1.image || this.image === this.animations.Attack1Left.image;
+        const attackImage = (
+            this.image === this.animations.Attack1.image ||
+            this.image === this.animations.Attack1Left.image ||
+            this.image === this.animations.Attack2.image ||
+            this.image === this.animations.Attack2Left.image
+        );
         const sameImage = this.image === this.animations[key].image;
         if (sameImage || !this.loaded || (attackImage && notLastFrame)) return;
 
@@ -66,6 +73,12 @@ class Player extends Sprite {
     update() {
         this.updateFrames();
         this.updateHitbox();
+
+        // draw player2
+        if (this === player2) {
+            c.fillStyle = "rgba(0, 255, 0, 0.5)";
+            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        }
 
         // draws out image
         // c.fillStyle = "rgba(0, 255, 0, 0.2)";
@@ -99,9 +112,13 @@ class Player extends Sprite {
         this.checkForDeath();
 
         this.updateArrow();
+
+        this.bulletList.forEach((bullet) => {
+            bullet.update();
+        });
     }
 
-    attack() {
+    attack1() {
         if (this.cooldownAttack) return;
         
         if (this.lastDirection === "right") {
@@ -119,8 +136,35 @@ class Player extends Sprite {
             }, 150);
             setTimeout(() => {
                 this.cooldownAttack = false;
-            }, attackCooldown);
+            }, 200);
         }, 100);
+    }
+
+    attack2() {
+        if (this.cooldownAttack) return;
+        
+        if (this.lastDirection === "right") {
+            this.switchSprite("Attack2");
+        } else {
+            this.switchSprite("Attack2Left");
+        }
+
+        this.bulletList.push(
+            new Bullet({
+                position: { ...this.position },
+                collisionBlocks,
+                platformCollisionBlocks,
+                imageSrc: this.lastDirection === "right" ? "./img/Bullet.png" : "./img/BulletLeft.png",
+                frameRate: 1,
+                scale: 1,
+                direction: this.lastDirection,
+            })
+        );
+
+        this.cooldownAttack = true;
+        setTimeout(() => {
+            this.cooldownAttack = false;
+        }, 500);
     }
 
     jump() {
@@ -218,7 +262,7 @@ class Player extends Sprite {
     }
 
     checkForDeath() {
-        if (this.position.y > 3000) {
+        if (this.position.y > 1000 || this.position.y < -3000) {
             this.lives--;
             if (this.lives < 1) {
                 gameOver(this === player1 ? 2 : 1);
@@ -362,7 +406,7 @@ class Player extends Sprite {
                 object2: this.hitbox,
             });
             const multiplier = this.smashing ? 2 : 1;
-            this.velocity.x += multiplier * Math.cos(angle) * 2000 / this.healthBar.value;
+            this.velocity.x += multiplier * Math.cos(angle) * 1000 / this.healthBar.value;
             this.velocity.y += multiplier * Math.sin(angle) * 700 / this.healthBar.value;
             this.otherPlayer.velocity.x -= multiplier * Math.cos(angle) * 1000 / this.otherPlayer.healthBar.value;
             this.otherPlayer.velocity.y -= multiplier * Math.sin(angle) * 350 / this.otherPlayer.healthBar.value;

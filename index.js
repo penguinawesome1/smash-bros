@@ -22,12 +22,11 @@ const health2 = document.getElementById("health2");
 const maxJumps = 2;
 const maxDashes = 2;
 const maxLives = 3;
-const gravity = 0.2;
+const gravity = 0.3;
 const frictionMultiplier = 0.9;
 const playerSpeed = 0.3;
-const dashStrength = 7;
+const dashStrength = 15;
 const dashCooldown = 1000;
-const attackCooldown = 500;
 const smashStrength = 10;
 const jumpStrength = 6;
 const player1Type = "player1";
@@ -150,6 +149,16 @@ const player1 = new Player({
             frameRate: 8,
             frameBuffer: 3,
         },
+        Attack2: {
+            imageSrc: `./img/${player2Type}/Attack2.png`,
+            frameRate: 9,
+            frameBuffer: 3,
+        },
+        Attack2Left: {
+            imageSrc: `./img/${player2Type}/Attack2Left.png`,
+            frameRate: 9,
+            frameBuffer: 3,
+        },
     }
 });
 
@@ -210,6 +219,16 @@ const player2 = new Player({
             frameRate: 8,
             frameBuffer: 3,
         },
+        Attack2: {
+            imageSrc: `./img/${player2Type}/Attack2.png`,
+            frameRate: 9,
+            frameBuffer: 6,
+        },
+        Attack2Left: {
+            imageSrc: `./img/${player2Type}/Attack2Left.png`,
+            frameRate: 9,
+            frameBuffer: 6,
+        },
     }
 });
 
@@ -265,14 +284,16 @@ window.addEventListener("keydown", (event) => {
         case "A": player1.keys.left = true; break;
         case "S": player1.keys.down = true; player1.smash(); break;
         case "W": player1.keys.up = true; player1.jump(); break;
-        case "E": player1.attack(); break;
-        case "SHIFT": player1.dash(); break;
+        case "F": player1.attack1(); break;
+        case "R": player1.attack2(); break;
+        case "G": player1.dash(); break;
 
         case "ARROWRIGHT": player2.keys.right = true; break;
         case "ARROWLEFT": player2.keys.left = true; break;
         case "ARROWDOWN": player2.keys.down = true; player2.smash(); break;
         case "ARROWUP": player2.keys.up = true; player2.jump(); break;
-        case "/": player2.attack(); break;
+        case "/": player2.attack1(); break;
+        case "L": player2.attack2(); break;
         case ".": player2.dash(); break;
     }
 });

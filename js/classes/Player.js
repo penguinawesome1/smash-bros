@@ -1,4 +1,4 @@
-class Player extends Sprite {
+class Player extends Component {
     constructor({
         position,
         collisionBlocks,
@@ -100,13 +100,13 @@ class Player extends Sprite {
         
         this.applyFriction();
         this.updateHitbox();
-        this.checkForHorizontalCollisions();
-        // this.checkForHorizontalPlayerCollisions();
+        this.respondToHorizontalCollision();
+        // this.checkForHorizontalPlayerCollision();
 
         this.applyGravity();
         this.updateHitbox();
-        this.checkForVerticalCollisions();
-        this.checkForVerticalPlayerCollisions();
+        this.respondToVerticalCollision();
+        this.checkForVerticalPlayerCollision();
 
         this.checkForHit();
         this.checkForDeath();
@@ -158,13 +158,15 @@ class Player extends Sprite {
                 frameRate: 1,
                 scale: 1,
                 direction: this.lastDirection,
+                player: this,
+                otherPlayer: this.otherPlayer,
             })
         );
 
         this.cooldownAttack = true;
         setTimeout(() => {
             this.cooldownAttack = false;
-        }, 500);
+        }, 1100);
     }
 
     jump() {
@@ -290,13 +292,24 @@ class Player extends Sprite {
     }
 
     updateHitbox() {
-        this.hitbox = {
-            position: {
-                x: this.position.x + 44 * this.scale,
-                y: this.position.y,
-            },
-            width: 70 * this.scale,
-            height: 110 * this.scale,
+        if (!this.crouching) {
+            this.hitbox = {
+                position: {
+                    x: this.position.x + 44 * this.scale,
+                    y: this.position.y,
+                },
+                width: 70 * this.scale,
+                height: 110 * this.scale,
+            }
+        } else {
+            this.hitbox = {
+                position: {
+                    x: this.position.x + 44 * this.scale,
+                    y: this.position.y + 110 * this.scale / 2,
+                },
+                width: 70 * this.scale,
+                height: 110 * this.scale / 2,
+            }
         }
 
         this.attackBox = {
@@ -345,7 +358,67 @@ class Player extends Sprite {
         this.switchSprite(sprite);
     }
 
-    checkForHorizontalPlayerCollisions() {
+    respondToHorizontalCollision() {
+        const collisionBlock = this.isCollision();
+        if (!collisionBlock) return;
+
+        if (this.velocity.x > 0) {
+            this.velocity.x = 0;
+
+            const offset = this.hitbox.position.x - this.position.x + this.hitbox.width;
+
+            this.position.x = collisionBlock.position.x - offset - 0.01;
+        } else if (this.velocity.x < 0) {
+            this.velocity.x = 0;
+
+            const offset = this.hitbox.position.x - this.position.x;
+            
+            this.position.x = collisionBlock.position.x + collisionBlock.width - offset + 0.01;
+        }
+    }
+
+    respondToVerticalCollision() {
+        const collisionBlock = this.isCollision();
+        const platformCollisionBlock = this.isPlatformCollision();
+        if (collisionBlock) {
+            if (this.velocity.y > 0) {
+                this.velocity.y = 0;
+                this.jumps = maxJumps;
+                this.dashes = maxDashes;
+                this.smashing = false;
+                
+                const grounded = this.jumps === maxJumps;
+                if (grounded && this.keys.down) {
+                    this.crouching = true;
+                } else {
+                    this.crouching = false;
+                }
+    
+                const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
+    
+                this.position.y = collisionBlock.position.y - offset - 0.01;
+            } else if (this.velocity.y < 0) {
+                this.velocity.y = 0;
+                
+                const offset = this.hitbox.position.y - this.position.y;
+    
+                this.position.y = collisionBlock.position.y + collisionBlock.height - offset + 0.01;
+            }
+        } else if (platformCollisionBlock) {
+            if (this.velocity.y <= 0) return;
+            
+            this.velocity.y = 0;
+            this.jumps = maxJumps;
+            this.dashes = maxDashes;
+
+            const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
+
+            this.position.y = platformCollisionBlock.position.y - offset - 0.01;
+        }
+        
+    }
+
+    checkForHorizontalPlayerCollision() {
         if (collision({
             object1: this.hitbox,
             object2: this.otherPlayer.hitbox,
@@ -366,35 +439,7 @@ class Player extends Sprite {
         }
     }
 
-    checkForHorizontalCollisions() {
-        for (let i = 0; i < this.collisionBlocks.length; i++) {
-            const collisionBlock = this.collisionBlocks[i];
-
-            if (collision({
-                object1: this.hitbox,
-                object2: collisionBlock,
-            })) {
-                if (this.velocity.x > 0) {
-                    this.velocity.x = 0;
-
-                    const offset = this.hitbox.position.x - this.position.x + this.hitbox.width;
-
-                    this.position.x = collisionBlock.position.x - offset - 0.01;
-                    break;
-                }
-                if (this.velocity.x < 0) {
-                    this.velocity.x = 0;
-
-                    const offset = this.hitbox.position.x - this.position.x;
-                    
-                    this.position.x = collisionBlock.position.x + collisionBlock.width - offset + 0.01;
-                    break;
-                }
-            }
-        }
-    }
-
-    checkForVerticalPlayerCollisions() {
+    checkForVerticalPlayerCollision() {
         if (this.velocity.y <= 0) return;
             
         if (collision({
@@ -415,55 +460,4 @@ class Player extends Sprite {
         }
     }
 
-    checkForVerticalCollisions() {
-        for (let i = 0; i < this.collisionBlocks.length; i++) {
-            const collisionBlock = this.collisionBlocks[i];
-
-            if (collision({
-                object1: this.hitbox,
-                object2: collisionBlock,
-            })) {
-                if (this.velocity.y > 0) {
-                    this.velocity.y = 0;
-                    this.jumps = maxJumps;
-                    this.dashes = maxDashes;
-                    this.smashing = false;
-
-                    const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
-
-                    this.position.y = collisionBlock.position.y - offset - 0.01;
-                    break;
-                }
-                if (this.velocity.y < 0) {
-                    this.velocity.y = 0;
-                    
-                    const offset = this.hitbox.position.y - this.position.y;
-
-                    this.position.y = collisionBlock.position.y + collisionBlock.height - offset + 0.01;
-                    break;
-                }
-            }
-        }
-
-        // platform collision blocks
-        for (let i = 0; i < this.platformCollisionBlocks.length; i++) {
-            const platformCollisionBlock = this.platformCollisionBlocks[i];
-
-            if (platformCollision({
-                object1: this.hitbox,
-                object2: platformCollisionBlock,
-            })) {
-                if (this.velocity.y > 0) {
-                    this.velocity.y = 0;
-                    this.jumps = maxJumps;
-                    this.dashes = maxDashes;
-
-                    const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
-
-                    this.position.y = platformCollisionBlock.position.y - offset - 0.01;
-                    break;
-                }
-            }
-        }
-    }
 }

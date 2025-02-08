@@ -37,8 +37,8 @@ class Bullet extends Component {
 
         this.draw();
 
-        c.fillStyle = "red";
-        c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        // c.fillStyle = "red";
+        // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
 
         this.reactToCollision();
 

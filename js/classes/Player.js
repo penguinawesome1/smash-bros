@@ -118,6 +118,22 @@ class Player extends Component {
         });
     }
 
+    jump() {
+        if (this.jumps < 1 || this.crouching) return;
+        this.velocity.y = -jumpStrength;
+        this.jumps--;
+    }
+
+    smash() {
+        const grounded = this.jumps === maxJumps;
+        if (grounded || this.smashing) return;
+        this.velocity.y = 0;
+        setTimeout(() => {
+            this.velocity.y = smashStrength;
+            this.smashing = true;
+        }, 100);
+    }
+
     attack1() {
         if (this.cooldownAttack) return;
         
@@ -169,12 +185,6 @@ class Player extends Component {
         }, 1100);
     }
 
-    jump() {
-        if (this.jumps < 1) return;
-        this.velocity.y = -jumpStrength;
-        this.jumps--;
-    }
-
     dash() {
         if (this.dashes < 1 || this.cooldownDash) return;
 
@@ -224,16 +234,6 @@ class Player extends Component {
         }, dashCooldown);
     }
 
-    smash() {
-        const grounded = this.jumps === maxJumps;
-        if (grounded || this.smashing) return;
-        this.velocity.y = 0;
-        setTimeout(() => {
-            this.velocity.y = smashStrength;
-            this.smashing = true;
-        }, 100);
-    }
-
     applyGravity() {
         this.velocity.y += gravity;
         this.position.y += this.velocity.y;
@@ -242,6 +242,19 @@ class Player extends Component {
     applyFriction() {
         this.velocity.x *= frictionMultiplier;
         this.position.x += this.velocity.x;
+    }
+
+    grounded() {
+        this.jumps = maxJumps;
+        this.dashes = maxDashes;
+        this.smashing = false;
+        
+        const grounded = this.jumps === maxJumps;
+        if (grounded && this.keys.down) {
+            this.crouching = true;
+        } else {
+            this.crouching = false;
+        }
     }
 
     checkForHit() {
@@ -383,16 +396,7 @@ class Player extends Component {
         if (collisionBlock) {
             if (this.velocity.y > 0) {
                 this.velocity.y = 0;
-                this.jumps = maxJumps;
-                this.dashes = maxDashes;
-                this.smashing = false;
-                
-                const grounded = this.jumps === maxJumps;
-                if (grounded && this.keys.down) {
-                    this.crouching = true;
-                } else {
-                    this.crouching = false;
-                }
+                this.grounded();
     
                 const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
     
@@ -405,11 +409,11 @@ class Player extends Component {
                 this.position.y = collisionBlock.position.y + collisionBlock.height - offset + 0.01;
             }
         } else if (platformCollisionBlock) {
-            if (this.velocity.y <= 0) return;
-            
+            const jumpDown = this.crouching && this.keys.up;
+            if (jumpDown || this.velocity.y <= 0) return;
+
             this.velocity.y = 0;
-            this.jumps = maxJumps;
-            this.dashes = maxDashes;
+            this.grounded();
 
             const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
 

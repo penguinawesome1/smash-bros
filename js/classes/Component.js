@@ -55,7 +55,7 @@ class Component extends Sprite {
                 object1: this.hitbox,
                 object2: platformCollisionBlock,
             })) {
-                return collisionBlock;
+                return platformCollisionBlock;
             }
         }
         return null;

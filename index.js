@@ -32,11 +32,11 @@ const jumpStrength = 6;
 const player1Type = "player1";
 const player2Type = "player2";
 const player1Respawn = {
-    x: 200,
+    x: 100,
     y: 300,
 };
 const player2Respawn = {
-    x: 400,
+    x: 350,
     y: 300,
 };
 
@@ -51,8 +51,8 @@ const scaledCanvas = {
 }
 
 const floorCollisions2D = [];
-for (let i = 0; i < floorCollisions.length; i += 36) {
-    floorCollisions2D.push(floorCollisions.slice(i, i + 36));
+for (let i = 0; i < floorCollisions.length; i += 32) {
+    floorCollisions2D.push(floorCollisions.slice(i, i + 32));
 }
 
 const collisionBlocks = [];
@@ -70,8 +70,8 @@ floorCollisions2D.forEach((row, y) => {
 });
 
 const platformCollisions2D = [];
-for (let i = 0; i < platformCollisions.length; i += 36) {
-    platformCollisions2D.push(platformCollisions.slice(i, i + 36));
+for (let i = 0; i < platformCollisions.length; i += 32) {
+    platformCollisions2D.push(platformCollisions.slice(i, i + 32));
 }
 
 const platformCollisionBlocks = [];
@@ -84,7 +84,7 @@ platformCollisions2D.forEach((row, y) => {
                         x: x * 16,
                         y: y * 16,
                     },
-                    height: 4,
+                    height: 8,
                 })
             );
         }
@@ -272,7 +272,7 @@ function gameOver(winner) {
     document.getElementById("game-over-popup").classList.remove("hidden");
     document.getElementById("winner").innerText = winner;
     setTimeout(() => {
-        location.reload();
+        // location.reload();
     }, 3000);
 }
 
@@ -285,16 +285,16 @@ window.addEventListener("keydown", (event) => {
         case "S": player1.keys.down = true; player1.smash(); break;
         case "W": player1.keys.up = true; player1.jump(); break;
         case "F": player1.attack1(); break;
-        case "R": player1.attack2(); break;
-        case "G": player1.dash(); break;
+        case "G": player1.attack2(); break;
+        case "H": player1.dash(); break;
 
         case "ARROWRIGHT": player2.keys.right = true; break;
         case "ARROWLEFT": player2.keys.left = true; break;
         case "ARROWDOWN": player2.keys.down = true; player2.smash(); break;
         case "ARROWUP": player2.keys.up = true; player2.jump(); break;
-        case "/": player2.attack1(); break;
-        case "L": player2.attack2(); break;
-        case ".": player2.dash(); break;
+        case ",": player2.attack1(); break;
+        case ".": player2.attack2(); break;
+        case "/": player2.dash(); break;
     }
 });
 

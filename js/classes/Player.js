@@ -50,7 +50,7 @@ class Player extends Component {
             up: false,
         };
 
-        this.bulletList = [];
+        this.attackList = [];
     }
 
     switchSprite(key) {
@@ -105,7 +105,8 @@ class Player extends Component {
 
         this.applyGravity();
         this.updateHitbox();
-        this.respondToVerticalCollision();
+        this.grounded = this.respondToVerticalCollision() !== null;
+        this.crouching = this.grounded && this.keys.down;
         this.checkForVerticalPlayerCollision();
 
         this.checkForHit();
@@ -113,8 +114,8 @@ class Player extends Component {
 
         this.updateArrow();
 
-        this.bulletList.forEach((bullet) => {
-            bullet.update();
+        this.attackList.forEach((attack) => {
+            attack.update();
         });
     }
 
@@ -125,8 +126,7 @@ class Player extends Component {
     }
 
     smash() {
-        const grounded = this.jumps === maxJumps;
-        if (grounded || this.smashing) return;
+        if (this.grounded || this.smashing) return;
         this.velocity.y = 0;
         setTimeout(() => {
             this.velocity.y = smashStrength;
@@ -165,17 +165,16 @@ class Player extends Component {
             this.switchSprite("Attack2Left");
         }
 
-        this.bulletList.push(
-            new Bullet({
+        this.attackList.push(
+            new Attack({
                 position: { ...this.position },
                 collisionBlocks,
                 platformCollisionBlocks,
                 imageSrc: this.lastDirection === "right" ? "./img/Bullet.png" : "./img/BulletLeft.png",
-                frameRate: 1,
-                scale: 1,
                 direction: this.lastDirection,
                 player: this,
                 otherPlayer: this.otherPlayer,
+                type: "bullet",
             })
         );
 
@@ -242,19 +241,6 @@ class Player extends Component {
     applyFriction() {
         this.velocity.x *= frictionMultiplier;
         this.position.x += this.velocity.x;
-    }
-
-    grounded() {
-        this.jumps = maxJumps;
-        this.dashes = maxDashes;
-        this.smashing = false;
-        
-        const grounded = this.jumps === maxJumps;
-        if (grounded && this.keys.down) {
-            this.crouching = true;
-        } else {
-            this.crouching = false;
-        }
     }
 
     checkForHit() {
@@ -396,7 +382,9 @@ class Player extends Component {
         if (collisionBlock) {
             if (this.velocity.y > 0) {
                 this.velocity.y = 0;
-                this.grounded();
+                this.jumps = maxJumps;
+                this.dashes = maxDashes;
+                this.smashing = false;
     
                 const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
     
@@ -413,7 +401,9 @@ class Player extends Component {
             if (jumpDown || this.velocity.y <= 0) return;
 
             this.velocity.y = 0;
-            this.grounded();
+            this.jumps = maxJumps;
+            this.dashes = maxDashes;
+            this.smashing = false;
 
             const offset = this.hitbox.position.y - this.position.y + this.hitbox.height;
 

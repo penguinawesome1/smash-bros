@@ -96,6 +96,13 @@ class Player extends Component {
         
         this.draw();
 
+        this.attackList.forEach((attack) => {
+            attack.update();
+        });
+
+        this.checkGrabbed();
+        if (this.grabbed) return;
+
         this.checkForKeys();
         
         this.applyFriction();
@@ -113,10 +120,6 @@ class Player extends Component {
         this.checkForDeath();
 
         this.updateArrow();
-
-        this.attackList.forEach((attack) => {
-            attack.update();
-        });
     }
 
     jump() {
@@ -174,7 +177,7 @@ class Player extends Component {
                 direction: this.lastDirection,
                 player: this,
                 otherPlayer: this.otherPlayer,
-                type: "bullet",
+                type: "homingdart",
             })
         );
 
@@ -231,6 +234,36 @@ class Player extends Component {
         setTimeout(() => {
             this.cooldownDash = false;
         }, dashCooldown);
+    }
+
+    grab() {
+        if (this.otherPlayer.grabbed) {
+            this.otherPlayer.grabbed = false;
+            this.otherPlayer.velocity = {
+                x: this.velocity.x + 15 * (this.lastDirection === "right" ? 1 : -1),
+                y: this.velocity.y - 7,
+            }
+            return;
+        }
+
+        if (collision({
+            object1: this.attackBox,
+            object2: this.otherPlayer.hitbox,
+        })) {
+            this.otherPlayer.grabbed = true;
+            setTimeout(() => {
+                this.otherPlayer.grabbed = false;
+            }, 2000);
+        }
+    }
+
+    checkGrabbed() {
+        if (!this.grabbed) return;
+
+        this.position = {
+            x: this.otherPlayer.position.x,
+            y: this.otherPlayer.position.y - this.height,
+        };
     }
 
     applyGravity() {

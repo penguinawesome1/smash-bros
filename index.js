@@ -50,6 +50,7 @@ const scaledCanvas = {
     height: canvas.height / this.scale,
 }
 
+const floorCollisions = floorHolder[selectedMap];
 const floorCollisions2D = [];
 for (let i = 0; i < floorCollisions.length; i += 32) {
     floorCollisions2D.push(floorCollisions.slice(i, i + 32));
@@ -69,6 +70,7 @@ floorCollisions2D.forEach((row, y) => {
     });
 });
 
+const platformCollisions = platformHolder[selectedMap];
 const platformCollisions2D = [];
 for (let i = 0; i < platformCollisions.length; i += 32) {
     platformCollisions2D.push(platformCollisions.slice(i, i + 32));
@@ -271,9 +273,9 @@ function animate() {
 function gameOver(winner) {
     document.getElementById("game-over-popup").classList.remove("hidden");
     document.getElementById("winner").innerText = winner;
-    setTimeout(() => {
-        // location.reload();
-    }, 3000);
+    // setTimeout(() => {
+    //     location.reload();
+    // }, 3000);
 }
 
 animate();
@@ -287,14 +289,16 @@ window.addEventListener("keydown", (event) => {
         case "F": player1.attack1(); break;
         case "G": player1.attack2(); break;
         case "H": player1.dash(); break;
+        case "J": player1.grab(); break;
 
         case "ARROWRIGHT": player2.keys.right = true; break;
         case "ARROWLEFT": player2.keys.left = true; break;
         case "ARROWDOWN": player2.keys.down = true; player2.smash(); break;
         case "ARROWUP": player2.keys.up = true; player2.jump(); break;
-        case ",": player2.attack1(); break;
+        case "/": player2.attack1(); break;
         case ".": player2.attack2(); break;
-        case "/": player2.dash(); break;
+        case ",": player2.dash(); break;
+        case "M": player2.grab(); break;
     }
 });
 

@@ -74,20 +74,17 @@ class Player extends Component {
         this.updateFrames();
         this.updateHitbox();
 
-        // draw player2
-        if (this === player2) {
-            c.fillStyle = "rgba(0, 255, 0, 0.5)";
-            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-        }
-
-        // draws out image
+        // // draw player2
+        // if (this === player2) {
+        //     c.fillStyle = "rgba(0, 255, 0, 0.5)";
+        //     c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        // }
+        // // draws out image
         // c.fillStyle = "rgba(0, 255, 0, 0.2)";
         // c.fillRect(this.position.x, this.position.y, this.width, this.height);
-
         // // draws out hitbox
         // c.fillStyle = "rgba(255, 0, 0, 0.2)";
         // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-
         // // draws out attack
         // if (this.isAttacking) {
         //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
@@ -96,6 +93,7 @@ class Player extends Component {
         
         this.draw();
 
+        this.updateArrow();
         this.attackList.forEach((attack) => {
             attack.update();
         });
@@ -108,18 +106,19 @@ class Player extends Component {
         this.applyFriction();
         this.updateHitbox();
         this.respondToHorizontalCollision();
-        // this.checkForHorizontalPlayerCollision();
 
         this.applyGravity();
         this.updateHitbox();
         this.grounded = this.respondToVerticalCollision() !== null;
         this.crouching = this.grounded && this.keys.down;
+
+        this.checkDash();
+        if (this.dashing) return;
+
         this.checkForVerticalPlayerCollision();
 
         this.checkForHit();
         this.checkForDeath();
-
-        this.updateArrow();
     }
 
     jump() {
@@ -177,7 +176,7 @@ class Player extends Component {
                 direction: this.lastDirection,
                 player: this,
                 otherPlayer: this.otherPlayer,
-                type: "homingdart",
+                type: "bullet",
             })
         );
 
@@ -229,11 +228,16 @@ class Player extends Component {
             }
         }
 
+        this.dashing = true;
+        setTimeout(() => {
+            this.dashing = false;
+        }, 220);
+
         this.dashes--;
         this.cooldownDash = true;
         setTimeout(() => {
             this.cooldownDash = false;
-        }, dashCooldown);
+        }, 2000);
     }
 
     grab() {
@@ -264,6 +268,14 @@ class Player extends Component {
             x: this.otherPlayer.position.x,
             y: this.otherPlayer.position.y - this.height,
         };
+    }
+
+    checkDash() {
+        if (!this.dashing) return;
+        this.attackBox.width = 0;
+
+        const image = this.lastDirection === "right" ? "Dash" : "DashLeft";
+        this.switchSprite(image);
     }
 
     applyGravity() {

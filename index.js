@@ -26,7 +26,6 @@ const gravity = 0.3;
 const frictionMultiplier = 0.9;
 const playerSpeed = 0.3;
 const dashStrength = 15;
-const dashCooldown = 1000;
 const smashStrength = 10;
 const jumpStrength = 6;
 const player1Type = "player1";
@@ -161,6 +160,16 @@ const player1 = new Player({
             frameRate: 9,
             frameBuffer: 3,
         },
+        Dash: {
+            imageSrc: `./img/${player2Type}/Dash.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        DashLeft: {
+            imageSrc: `./img/${player2Type}/DashLeft.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
     }
 });
 
@@ -209,7 +218,7 @@ const player2 = new Player({
         FallLeft: {
             imageSrc: `./img/${player2Type}/FallLeft.png`,
             frameRate: 1,
-            frameBuffer: 8,
+            frameBuffer: 0,
         },
         Attack1: {
             imageSrc: `./img/${player2Type}/Attack1.png`,
@@ -230,6 +239,16 @@ const player2 = new Player({
             imageSrc: `./img/${player2Type}/Attack2Left.png`,
             frameRate: 9,
             frameBuffer: 6,
+        },
+        Dash: {
+            imageSrc: `./img/${player2Type}/Dash.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        DashLeft: {
+            imageSrc: `./img/${player2Type}/DashLeft.png`,
+            frameRate: 1,
+            frameBuffer: 0,
         },
     }
 });

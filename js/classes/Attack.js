@@ -110,6 +110,8 @@ class Attack extends Component {
     }
 
     reactToCollision() {
+        if (this.otherPlayer.dashing) return;
+
         const playerCollision = this.checkForPlayerCollision();
         if (!playerCollision && !this.isCollision()) return;
 

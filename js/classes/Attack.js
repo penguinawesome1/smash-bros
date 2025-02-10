@@ -53,11 +53,11 @@ class Attack extends Component {
             }
             case "homingdart": {
                 this.position = {
-                    x: position.x + this.scale * (0 + 40 * (this.direction === "right" ? 1 : 0)),
-                    y: position.y + this.scale * 17,
-                };
+                    x: 238.5,
+                    y: 250,
+                }
                 this.velocity = {
-                    x: direction === "right" ? 2 : -2,
+                    x: 0,
                     y: 0,
                 };
                 this.hitbox = {
@@ -97,16 +97,29 @@ class Attack extends Component {
     }
 
     homing() {
-        const angle = calcAngle({
+        const d1 = calcDistance({
+            object1: this.hitbox,
+            object2: this.player.hitbox,
+        });
+        const d2 = calcDistance({
             object1: this.hitbox,
             object2: this.otherPlayer.hitbox,
         });
-        const d = calcDistance({
-            object1: this.hitbox,
-            object2: this.otherPlayer.hitbox,
-        });
-        this.velocity.x += Math.cos(angle) * 100 / d;
-        this.velocity.y += Math.sin(angle) * 100 / d;
+
+        let angle = 0;
+        if (d1 < d2) {
+            angle = calcAngle({
+                object1: this.hitbox,
+                object2: this.player.hitbox,
+            });
+        } else {
+            angle = calcAngle({
+                object1: this.hitbox,
+                object2: this.otherPlayer.hitbox,
+            });
+        }
+        this.velocity.x = Math.cos(angle) * 8;
+        this.velocity.y = Math.sin(angle) * 8;
     }
 
     reactToCollision() {
@@ -115,12 +128,35 @@ class Attack extends Component {
         const playerCollision = this.checkForPlayerCollision();
         if (!playerCollision && !this.isCollision()) return;
 
-        if (playerCollision && this.type !== "boomerang") {
+        if (playerCollision && this.type !== "boomerang" && this.type !== "homingdart") {
             const i = player1.attackList.indexOf(this);
             if (i) this.player.attackList.splice(i, 1);
         }
 
         if (!playerCollision) return;
+
+        if (this.type === "homingdart") {
+            if (collision({
+                object1: this.hitbox,
+                object2: player1.hitbox,
+            })) {
+                const angle = calcAngle({
+                    object1: this.hitbox,
+                    object2: this.player.hitbox,
+                });
+                this.player.velocity.x += Math.cos(angle) * .5;
+                this.player.velocity.y += Math.sin(angle) * .2;
+            } else {
+                const angle = calcAngle({
+                    object1: this.hitbox,
+                    object2: this.otherPlayer.hitbox,
+                });
+                this.otherPlayer.velocity.x += Math.cos(angle) * .5;
+                this.otherPlayer.velocity.y += Math.sin(angle) * .2;
+            }
+
+            return;
+        }
 
         const angle = calcAngle({
             object1: this.hitbox,
@@ -144,6 +180,16 @@ class Attack extends Component {
     }
 
     checkForPlayerCollision() {
+        if (this.type === "homingdart") {
+            return collision({
+                    object1: this.hitbox,
+                    object2: player2.hitbox,
+                }) || collision({
+                object1: this.hitbox,
+                object2: player1.hitbox,
+            });
+        }
+
         if (this.player === player1) {
             return collision({
                 object1: this.hitbox,

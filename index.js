@@ -153,12 +153,12 @@ const player1 = new Player({
         Attack2: {
             imageSrc: `./img/${player2Type}/Attack2.png`,
             frameRate: 9,
-            frameBuffer: 3,
+            frameBuffer: 2,
         },
         Attack2Left: {
             imageSrc: `./img/${player2Type}/Attack2Left.png`,
             frameRate: 9,
-            frameBuffer: 3,
+            frameBuffer: 2,
         },
         Dash: {
             imageSrc: `./img/${player2Type}/Dash.png`,
@@ -233,12 +233,12 @@ const player2 = new Player({
         Attack2: {
             imageSrc: `./img/${player2Type}/Attack2.png`,
             frameRate: 9,
-            frameBuffer: 6,
+            frameBuffer: 2,
         },
         Attack2Left: {
             imageSrc: `./img/${player2Type}/Attack2Left.png`,
             frameRate: 9,
-            frameBuffer: 6,
+            frameBuffer: 2,
         },
         Dash: {
             imageSrc: `./img/${player2Type}/Dash.png`,
@@ -268,6 +268,9 @@ const background = new Sprite({
 });
 
 function animate() {
+    // setTimeout(() => {
+    //     window.requestAnimationFrame(animate);
+    // }, 100);
     window.requestAnimationFrame(animate);
 
     c.save();
@@ -285,6 +288,12 @@ function animate() {
 
     player1.update();
     player2.update();
+
+    if (player1.dev) {
+        player1.hack();
+        player1.lives = 3000;
+        player2.lives = 3000;
+    }
 
     c.restore();
 }
@@ -318,6 +327,8 @@ window.addEventListener("keydown", (event) => {
         case ".": player2.attack2(); break;
         case ",": player2.dash(); break;
         case "M": player2.grab(); break;
+        case "1": player1.hack(); break;
+        case "2": player1.dev = !player1.dev; break;
     }
 });
 

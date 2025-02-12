@@ -39,6 +39,8 @@ const player2Respawn = {
     y: 300,
 };
 
+const scale = selectedMap === "gas-station" ? .9 : .4;
+
 const scaledCanvas = {
     scale: 3,
     width: canvas.width / this.scale,
@@ -94,7 +96,7 @@ platformCollisions2D.forEach((row, y) => {
 
 const player1 = new Player({
     position: { ...player1Respawn },
-    // scale: 0.2,
+    scale,
     collisionBlocks,
     platformCollisionBlocks,
     imageSrc: `./img/${player1Type}/Idle.png`,
@@ -177,6 +179,7 @@ const player2 = new Player({
     position: { ...player2Respawn },
     collisionBlocks,
     platformCollisionBlocks,
+    scale,
     imageSrc: `./img/${player1Type}/Idle.png`,
     frameRate: 8,
     animations: {

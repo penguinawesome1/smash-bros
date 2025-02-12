@@ -74,11 +74,11 @@ class Player extends Component {
         this.updateFrames();
         this.updateHitbox();
 
-        // // draw player2
-        // if (this === player2) {
-        //     c.fillStyle = "rgba(0, 255, 0, 0.5)";
-        //     c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-        // }
+        // draw player2
+        if (this === player2) {
+            c.fillStyle = "rgba(0, 255, 0, 0.5)";
+            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        }
         // // draws out image
         // c.fillStyle = "rgba(0, 255, 0, 0.2)";
         // c.fillRect(this.position.x, this.position.y, this.width, this.height);
@@ -306,6 +306,9 @@ class Player extends Component {
 
     checkForHit() {
         if (!this.isAttacking) return;
+
+        c.fillStyle = "orange";
+        c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
 
         if (collision({
             object1: this.attackBox,

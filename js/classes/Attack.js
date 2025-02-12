@@ -21,7 +21,7 @@ class Attack extends Component {
         switch (this.type) {
             case "bullet": {
                 this.position = {
-                    x: position.x + this.scale * (0 + 40 * (this.direction === "right" ? 1 : 0)),
+                    x: position.x + this.scale * (20 + 20 * (this.direction === "right" ? 1 : -1)),
                     y: position.y + this.scale * 17,
                 };
                 this.velocity = {
@@ -171,7 +171,7 @@ class Attack extends Component {
     updateHitbox() {
         this.hitbox = {
             position: {
-                x: this.position.x + this.scale * (0 + 10 * (this.direction === "right" ? 1 : 0)),
+                x: this.position.x + this.scale * (5 + 5 * (this.direction === "right" ? 1 : -1)),
                 y: this.position.y + 0 * this.scale,
             },
             width: 16 * this.scale,

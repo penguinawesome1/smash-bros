@@ -21,11 +21,11 @@ class Attack extends Component {
         switch (this.type) {
             case "bullet": {
                 this.position = {
-                    x: position.x + this.scale * (20 + 20 * (this.direction === "right" ? 1 : -1)),
-                    y: position.y + this.scale * 17,
+                    x: position.x + this.scale * (50 + 50 * (this.direction === "right" ? 1 : -1)),
+                    y: position.y + this.scale * 42.5,
                 };
                 this.velocity = {
-                    x: direction === "right" ? 20 : -20,
+                    x: this.direction === "right" ? 20 : -20,
                     y: 0,
                 };
                 this.hitbox = {
@@ -41,7 +41,7 @@ class Attack extends Component {
                     y: position.y + this.scale * 17,
                 };
                 this.velocity = {
-                    x: direction === "right" ? 8 : -8,
+                    x: this.direction === "right" ? 8 : -8,
                     y: -1,
                 };
                 this.hitbox = {
@@ -106,18 +106,11 @@ class Attack extends Component {
             object2: this.otherPlayer.hitbox,
         });
 
-        let angle = 0;
-        if (d1 < d2) {
-            angle = calcAngle({
-                object1: this.hitbox,
-                object2: this.player.hitbox,
-            });
-        } else {
-            angle = calcAngle({
-                object1: this.hitbox,
-                object2: this.otherPlayer.hitbox,
-            });
-        }
+        const angle = calcAngle({
+            object1: this.hitbox,
+            object2: (d1 < d2 ? this.player.hitbox : this.otherPlayer.hitbox),
+        });
+
         this.velocity.x = Math.cos(angle) * 8;
         this.velocity.y = Math.sin(angle) * 8;
     }

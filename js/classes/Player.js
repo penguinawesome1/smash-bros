@@ -106,6 +106,7 @@ class Player extends Component {
         this.applyFriction();
         this.updateHitbox();
         this.respondToHorizontalCollision();
+        // this.checkForHorizontalPlayerCollision();
 
         this.applyGravity();
         this.updateHitbox();
@@ -152,6 +153,7 @@ class Player extends Component {
             setTimeout(() => {
                 this.isAttacking = false;
             }, 150);
+
             setTimeout(() => {
                 this.cooldownAttack = false;
             }, 200);
@@ -160,12 +162,14 @@ class Player extends Component {
 
     attack2() {
         if (this.cooldownAttack) return;
-        
+
         if (this.lastDirection === "right") {
             this.switchSprite("Attack2");
         } else {
             this.switchSprite("Attack2Left");
         }
+
+        const direction = this.lastDirection;
 
         this.cooldownAttack = true;
         setTimeout(() => {
@@ -174,13 +178,15 @@ class Player extends Component {
                     position: { ...this.position },
                     collisionBlocks,
                     platformCollisionBlocks,
-                    imageSrc: this.lastDirection === "right" ? "./img/Bullet.png" : "./img/BulletLeft.png",
-                    direction: this.lastDirection,
+                    imageSrc: direction === "right" ? "./img/Bullet.png" : "./img/BulletLeft.png",
+                    direction,
                     player: this,
                     otherPlayer: this.otherPlayer,
                     type: "bullet",
+                    scale: this.scale,
                 })
             );
+
             setTimeout(() => {
                 this.cooldownAttack = false;
             }, 1100);
@@ -347,10 +353,36 @@ class Player extends Component {
         }
         arrow.classList.remove("hidden");
 
+        const distance = calcDistance({
+            object1: this.hitbox,
+            object2: {
+                position: {
+                    x: canvas.width / 2 * scale,
+                    y: canvas.height / 2 * scale,
+                },
+                width: 0,
+                height: 0,
+            }
+        });
+        arrow.style.width = 2000 / Math.sqrt(distance) + "px";
+
+        const angle = calcAngle({
+            object1: this.hitbox,
+            object2: {
+                position: {
+                    x: canvas.width / 2 * scale,
+                    y: canvas.height / 2 * scale,
+                },
+                width: 0,
+                height: 0,
+            }
+        });
+        arrow.style.transform = `rotate(${angle - 3.14 / 2}rad)`;
+
         const x = this.position.x * scaledCanvas.scale;
-        const cWidth = canvas.width;
+
         if (x < 0) arrow.style.left = "0px";
-        else if (x > cWidth - 100) arrow.style.left = `${cWidth - 100}px`;
+        else if (x > canvas.width - 150) arrow.style.left = `${canvas.width - 150}px`;
         else arrow.style.left = this.position.x * scaledCanvas.scale + "px";
     }
 

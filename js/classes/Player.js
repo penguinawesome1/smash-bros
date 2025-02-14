@@ -99,7 +99,7 @@ class Player extends Component {
         });
 
         this.checkGrabbed();
-        if (this.grabbed) return;
+        if (this.grabbed || this.hitStop) return;
 
         this.checkForKeys();
         
@@ -327,6 +327,13 @@ class Player extends Component {
             this.otherPlayer.velocity.x += Math.cos(angle) * 2000 / this.otherPlayer.healthBar.value;
             this.otherPlayer.velocity.y += Math.sin(angle) * 700 / this.otherPlayer.healthBar.value;
 
+            this.hitStop = true;
+            this.otherPlayer.hitStop = true;
+            setTimeout(() => {
+                this.hitStop = false;
+                this.otherPlayer.hitStop = false;
+            }, hitStopDuration);
+
             this.otherPlayer.healthBar.value -= 10;
             this.isAttacking = false;
         }
@@ -382,7 +389,7 @@ class Player extends Component {
         const x = this.position.x * scaledCanvas.scale;
 
         if (x < 0) arrow.style.left = "0px";
-        else if (x > canvas.width - 150) arrow.style.left = `${canvas.width - 150}px`;
+        else if (x > canvas.width - 160) arrow.style.left = `${canvas.width - 160}px`;
         else arrow.style.left = this.position.x * scaledCanvas.scale + "px";
     }
 
@@ -547,6 +554,13 @@ class Player extends Component {
             this.velocity.y += multiplier * Math.sin(angle) * 700 / this.healthBar.value;
             this.otherPlayer.velocity.x -= multiplier * Math.cos(angle) * 1000 / this.otherPlayer.healthBar.value;
             this.otherPlayer.velocity.y -= multiplier * Math.sin(angle) * 350 / this.otherPlayer.healthBar.value;
+
+            this.hitStop = true;
+            this.otherPlayer.hitStop = true;
+            setTimeout(() => {
+                this.hitStop = false;
+                this.otherPlayer.hitStop = false;
+            }, hitStopDuration);
 
             this.otherPlayer.healthBar.value -= 5 * multiplier;
         }

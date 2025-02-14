@@ -28,6 +28,7 @@ const playerSpeed = 0.3;
 const dashStrength = 15;
 const smashStrength = 10;
 const jumpStrength = 6;
+const hitStopDuration = 100;
 const player1Type = "player1";
 const player2Type = "player2";
 const player1Respawn = {

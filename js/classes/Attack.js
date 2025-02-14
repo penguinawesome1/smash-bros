@@ -159,6 +159,11 @@ class Attack extends Component {
         this.otherPlayer.velocity.y += Math.sin(angle) * 250 / this.otherPlayer.healthBar.value;
 
         this.otherPlayer.healthBar.value -= 10;
+
+        this.otherPlayer.hitStop = true;
+        setTimeout(() => {
+            this.otherPlayer.hitStop = false;
+        }, hitStopDuration);
     }
 
     updateHitbox() {

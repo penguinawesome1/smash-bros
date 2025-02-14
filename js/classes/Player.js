@@ -140,11 +140,8 @@ class Player extends Component {
     attack1() {
         if (this.cooldownAttack) return;
         
-        if (this.lastDirection === "right") {
-            this.switchSprite("Attack1");
-        } else {
-            this.switchSprite("Attack1Left");
-        }
+        this.switchSprite(this.lastDirection === "right" ? "Attack1" : "Attack1Left");
+        this.attackDirection = this.lastDirection;
 
         this.cooldownAttack = true;
         setTimeout(() => {
@@ -156,7 +153,7 @@ class Player extends Component {
 
             setTimeout(() => {
                 this.cooldownAttack = false;
-            }, 200);
+            }, 300);
         }, 100);
     }
 
@@ -416,7 +413,7 @@ class Player extends Component {
 
         this.attackBox = {
             position: {
-                x: this.position.x + this.scale * (54 + 26 * (this.lastDirection === "right" ? 1 : -1)),
+                x: this.position.x + this.scale * (54 + 26 * (this.attackDirection === "right" ? 1 : -1)),
                 y: this.position.y + 23 * this.scale,
             },
             width: 53 * this.scale,

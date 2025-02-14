@@ -10,7 +10,17 @@ function getParameterByName(name, url = window.location.href) {
   
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
-const selectedMap = getParameterByName("map") !== null ? getParameterByName("map") : "farm";
+
+const passedMap = getParameterByName("map");
+const passedPlayer1 = getParameterByName("player1");
+const passedPlayer2 = getParameterByName("player2");
+if (passedMap) localStorage.setItem("MAP", passedMap);
+if (passedPlayer1) localStorage.setItem("PLAYER1", passedPlayer1);
+if (passedPlayer2) localStorage.setItem("PLAYER2", passedPlayer2);
+
+const selectedMap = localStorage.getItem("MAP") ? localStorage.getItem("MAP") : "farm";
+const selectedPlayer1 = localStorage.getItem("PLAYER1") ? localStorage.getItem("PLAYER1") : "country-boy";
+const selectedPlayer2 = localStorage.getItem("PLAYER2") ? localStorage.getItem("PLAYER2") : "country-boy";
 
 const canvas = document.getElementById("game-board");
 const c = canvas.getContext("2d");
@@ -29,8 +39,6 @@ const dashStrength = 15;
 const smashStrength = 10;
 const jumpStrength = 6;
 const hitStopDuration = 100;
-const player1Type = "player1";
-const player2Type = "player2";
 const player1Respawn = {
     x: 100,
     y: 300,
@@ -40,7 +48,11 @@ const player2Respawn = {
     y: 300,
 };
 
-const scale = selectedMap === "gas-station" ? .9 : .4;
+const scales = {
+    "farm": .4,
+    "gas-station": .9,
+}
+const scale = scales[selectedMap];
 
 const scaledCanvas = {
     scale: 3,
@@ -51,6 +63,14 @@ const scaledCanvas = {
     width: canvas.width / this.scale,
     height: canvas.height / this.scale,
 }
+
+const background = new Sprite({
+    position: {
+        x: 0,
+        y: 0,
+    },
+    imageSrc: `./img/backgrounds/${selectedMap}.png`,
+});
 
 const floorCollisions = floorHolder[selectedMap];
 const floorCollisions2D = [];
@@ -100,76 +120,76 @@ const player1 = new Player({
     scale,
     collisionBlocks,
     platformCollisionBlocks,
-    imageSrc: `./img/${player1Type}/Idle.png`,
+    imageSrc: `./img/players/temp/Idle.png`,
     frameRate: 8,
     animations: {
         Idle: {
-            imageSrc: `./img/${player2Type}/Idle.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Idle.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         IdleLeft: {
-            imageSrc: `./img/${player2Type}/IdleLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/IdleLeft.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         Run: {
-            imageSrc: `./img/${player2Type}/Run.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Run.png`,
             frameRate: 5,
             frameBuffer: 6,
         },
         RunLeft: {
-            imageSrc: `./img/${player2Type}/RunLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/RunLeft.png`,
             frameRate: 5,
             frameBuffer: 6,
         },
         Jump: {
-            imageSrc: `./img/${player2Type}/Jump.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Jump.png`,
             frameRate: 2,
             frameBuffer: 12,
         },
         JumpLeft: {
-            imageSrc: `./img/${player2Type}/JumpLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/JumpLeft.png`,
             frameRate: 2,
             frameBuffer: 12,
         },
         Fall: {
-            imageSrc: `./img/${player2Type}/Fall.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Fall.png`,
             frameRate: 1,
             frameBuffer: 8,
         },
         FallLeft: {
-            imageSrc: `./img/${player2Type}/FallLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/FallLeft.png`,
             frameRate: 1,
             frameBuffer: 8,
         },
         Attack1: {
-            imageSrc: `./img/${player2Type}/Attack1.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Attack1.png`,
             frameRate: 8,
             frameBuffer: 3,
         },
         Attack1Left: {
-            imageSrc: `./img/${player2Type}/Attack1Left.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Attack1Left.png`,
             frameRate: 8,
             frameBuffer: 3,
         },
         Attack2: {
-            imageSrc: `./img/${player2Type}/Attack2.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Attack2.png`,
             frameRate: 9,
             frameBuffer: 2,
         },
         Attack2Left: {
-            imageSrc: `./img/${player2Type}/Attack2Left.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Attack2Left.png`,
             frameRate: 9,
             frameBuffer: 2,
         },
         Dash: {
-            imageSrc: `./img/${player2Type}/Dash.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/Dash.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         DashLeft: {
-            imageSrc: `./img/${player2Type}/DashLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer1}/DashLeft.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
@@ -181,76 +201,76 @@ const player2 = new Player({
     collisionBlocks,
     platformCollisionBlocks,
     scale,
-    imageSrc: `./img/${player1Type}/Idle.png`,
+    imageSrc: `./img/players/temp/Idle.png`,
     frameRate: 8,
     animations: {
         Idle: {
-            imageSrc: `./img/${player2Type}/Idle.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Idle.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         IdleLeft: {
-            imageSrc: `./img/${player2Type}/IdleLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/IdleLeft.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         Run: {
-            imageSrc: `./img/${player2Type}/Run.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Run.png`,
             frameRate: 5,
             frameBuffer: 6,
         },
         RunLeft: {
-            imageSrc: `./img/${player2Type}/RunLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/RunLeft.png`,
             frameRate: 5,
             frameBuffer: 6,
         },
         Jump: {
-            imageSrc: `./img/${player2Type}/Jump.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Jump.png`,
             frameRate: 2,
             frameBuffer: 12,
         },
         JumpLeft: {
-            imageSrc: `./img/${player2Type}/JumpLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/JumpLeft.png`,
             frameRate: 2,
             frameBuffer: 12,
         },
         Fall: {
-            imageSrc: `./img/${player2Type}/Fall.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Fall.png`,
             frameRate: 1,
             frameBuffer: 8,
         },
         FallLeft: {
-            imageSrc: `./img/${player2Type}/FallLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/FallLeft.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         Attack1: {
-            imageSrc: `./img/${player2Type}/Attack1.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Attack1.png`,
             frameRate: 8,
             frameBuffer: 3,
         },
         Attack1Left: {
-            imageSrc: `./img/${player2Type}/Attack1Left.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Attack1Left.png`,
             frameRate: 8,
             frameBuffer: 3,
         },
         Attack2: {
-            imageSrc: `./img/${player2Type}/Attack2.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Attack2.png`,
             frameRate: 9,
             frameBuffer: 2,
         },
         Attack2Left: {
-            imageSrc: `./img/${player2Type}/Attack2Left.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Attack2Left.png`,
             frameRate: 9,
             frameBuffer: 2,
         },
         Dash: {
-            imageSrc: `./img/${player2Type}/Dash.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/Dash.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
         DashLeft: {
-            imageSrc: `./img/${player2Type}/DashLeft.png`,
+            imageSrc: `./img/players/${selectedPlayer2}/DashLeft.png`,
             frameRate: 1,
             frameBuffer: 0,
         },
@@ -263,18 +283,7 @@ player1.healthBar = health1;
 player2.healthBar = health2;
 player2.lastDirection = "left";
 
-const background = new Sprite({
-    position: {
-        x: 0,
-        y: 0,
-    },
-    imageSrc: `./img/backgrounds/${selectedMap}.png`,
-});
-
 function animate() {
-    // setTimeout(() => {
-    //     window.requestAnimationFrame(animate);
-    // }, 100);
     window.requestAnimationFrame(animate);
 
     c.save();

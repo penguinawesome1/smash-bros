@@ -88,12 +88,17 @@ class Player extends Component {
         // c.fillStyle = "rgba(255, 0, 0, 0.2)";
         // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
         // draws out attack
-        if (this.isAttacking) {
-            c.fillStyle = "rgba(0, 0, 255, 0.2)";
-            c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-        }
+        // if (this.isAttacking) {
+        //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
+        //     c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        // }
         
         this.draw();
+
+        if (this.hitStop) {
+            c.fillStyle = "white";
+            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        }
 
         this.updateArrow();
         this.attackList.forEach((attack) => {
@@ -115,8 +120,11 @@ class Player extends Component {
         this.grounded = this.respondToVerticalCollision() !== false;
         this.crouching = this.grounded && this.keys.down;
 
-        this.checkDash();
-        if (this.dashing) return;
+        if (this.dashing) {
+            const image = this.lastDirection === "right" ? "Dash" : "DashLeft";
+            this.switchSprite(image);
+            return;
+        }
 
         this.checkForVerticalPlayerCollision();
 
@@ -181,7 +189,7 @@ class Player extends Component {
                     direction,
                     player: this,
                     otherPlayer: this.otherPlayer,
-                    type: "bullet",
+                    type: "potion",
                     scale: this.scale,
                 })
             );
@@ -245,7 +253,7 @@ class Player extends Component {
                 this.velocity.x = dashStrength;
             } else {
                 // no direction
-                this.velocity.x = this.lastDirection === "right" ? dashStrength : -1 * dashStrength;
+                this.velocity.x = this.lastDirection === "right" ? dashStrength : -dashStrength;
             }
         }
 
@@ -291,14 +299,6 @@ class Player extends Component {
         };
     }
 
-    checkDash() {
-        if (!this.dashing) return;
-        this.attackBox.width = 0;
-
-        const image = this.lastDirection === "right" ? "Dash" : "DashLeft";
-        this.switchSprite(image);
-    }
-
     applyGravity() {
         this.velocity.y += gravity;
         this.position.y += this.velocity.y;
@@ -310,10 +310,7 @@ class Player extends Component {
     }
 
     checkForHit() {
-        if (!this.isAttacking) return;
-
-        c.fillStyle = "orange";
-        c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        if (!this.isAttacking || this.otherPlayer.dashing) return;
 
         if (collision({
             object1: this.attackBox,
@@ -339,15 +336,17 @@ class Player extends Component {
     }
 
     checkForDeath() {
+        if (this.lives < 1) return;
         if (this.position.y > 1000 || this.position.y < -3000) {
             this.lives--;
+            this.livesBar.children[this.lives].style.backgroundColor = "black";
             if (this.lives < 1) {
                 gameOver(this === player1 ? 2 : 1);
-            } else {
-                this.position = this === player1 ? { ...player1Respawn } : { ...player2Respawn };
-                this.healthBar.value = 100;
-                this.velocity = { x: 0, y: 0 };
+                return;
             }
+            this.position = this === player1 ? { ...player1Respawn } : { ...player2Respawn };
+            this.healthBar.value = 100;
+            this.velocity = { x: 0, y: 0 };
         }
     }
 
@@ -413,7 +412,9 @@ class Player extends Component {
             }
         }
         
-        if (!this.keys.up) {
+        if (this.dashing) {
+            this.attackBox.width = 0;
+        } if (!this.keys.up) {
             this.attackBox = {
                 position: {
                     x: this.position.x + this.scale * (54 + 26 * (this.attackDirection === "right" ? 1 : -1)),

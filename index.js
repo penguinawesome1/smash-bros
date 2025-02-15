@@ -29,6 +29,8 @@ canvas.height = window.innerHeight;
 
 const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
+const lives1 = document.getElementById("lives1");
+const lives2 = document.getElementById("lives2");
 const maxJumps = 2;
 const maxDashes = 2;
 const maxLives = 3;
@@ -281,6 +283,8 @@ player1.otherPlayer = player2;
 player2.otherPlayer = player1;
 player1.healthBar = health1;
 player2.healthBar = health2;
+player1.livesBar = lives1;
+player2.livesBar = lives2;
 player2.lastDirection = "left";
 
 function animate() {
@@ -304,8 +308,8 @@ function animate() {
 
     if (player1.dev) {
         player1.hack();
-        player1.lives = 3000;
-        player2.lives = 3000;
+        player1.lives = maxLives;
+        player2.lives = maxLives;
     }
 
     c.restore();

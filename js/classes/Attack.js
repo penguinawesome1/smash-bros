@@ -35,6 +35,35 @@ class Attack extends Component {
                 };
                 break;
             }
+            case "potion": {
+                this.position = {
+                    x: position.x + this.scale * (50 + 50 * (this.direction === "right" ? 1 : -1)),
+                    y: position.y + this.scale * 42.5,
+                };
+                this.velocity = {
+                    x: this.direction === "right" ? 10 : -10,
+                    y: 0,
+                };
+                this.hitbox = {
+                    position: this.position,
+                    width: 10,
+                    height: 10,
+                };
+                break;
+            }
+            case "aoe": {
+                this.position = position;
+                this.velocity = {
+                    x: 0,
+                    y: 0,
+                };
+                this.hitbox = {
+                    position: this.position,
+                    width: 10,
+                    height: 10,
+                };
+                break;
+            }
             case "boomerang": {
                 this.position = {
                     x: position.x + this.scale * (0 + 40 * (this.direction === "right" ? 1 : 0)),
@@ -81,8 +110,9 @@ class Attack extends Component {
 
         if (this.type === "boomerang") {
             this.velocity.x += this.direction === "right" ? -.2 : .2;
-            // this.applyFriction();
-            // this.applyGravity();
+        } else if (this.type === "potion") {
+            this.applyGravity();
+            this.applyFriction();
         }
 
         this.counter++;
@@ -116,17 +146,30 @@ class Attack extends Component {
     }
 
     reactToCollision() {
-        if (this.otherPlayer.dashing) return;
-
         const playerCollision = this.checkForPlayerCollision();
         if (!playerCollision && !this.isCollision()) return;
 
-        if (playerCollision && this.type !== "boomerang" && this.type !== "homingdart") {
+        if (this.type === "potion") {
+            this.player.attackList.push(
+                new Attack({
+                    position: { ...this.position },
+                    collisionBlocks,
+                    platformCollisionBlocks,
+                    imageSrc: this.direction === "right" ? "./img/Bullet.png" : "./img/BulletLeft.png",
+                    direction: this.direction,
+                    player: this.player,
+                    otherPlayer: this.otherPlayer,
+                    type: "aoe",
+                    scale: 10,
+                })
+            );
             const i = player1.attackList.indexOf(this);
             if (i) this.player.attackList.splice(i, 1);
         }
-
-        if (!playerCollision) return;
+        if (this.type === "bullet") {
+            const i = player1.attackList.indexOf(this);
+            if (i) this.player.attackList.splice(i, 1);
+        }
 
         if (this.type === "homingdart") {
             if (collision({
@@ -147,7 +190,6 @@ class Attack extends Component {
                 this.otherPlayer.velocity.x += Math.cos(angle) * .5;
                 this.otherPlayer.velocity.y += Math.sin(angle) * .2;
             }
-
             return;
         }
 
@@ -160,10 +202,12 @@ class Attack extends Component {
 
         this.otherPlayer.healthBar.value -= 10;
 
-        this.otherPlayer.hitStop = true;
-        setTimeout(() => {
-            this.otherPlayer.hitStop = false;
-        }, hitStopDuration);
+        if (this.type !== "aoe") {
+            this.otherPlayer.hitStop = true;
+            setTimeout(() => {
+                this.otherPlayer.hitStop = false;
+            }, hitStopDuration);
+        }
     }
 
     updateHitbox() {

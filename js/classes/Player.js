@@ -51,18 +51,20 @@ class Player extends Component {
         };
 
         this.attackList = [];
+
+        this.attackImages = new Set([
+            this.animations.Attack1.image,
+            this.animations.Attack1Left.image,
+            this.animations.Attack2.image,
+            this.animations.Attack2Left.image,
+        ]);
     }
 
     switchSprite(key) {
+        const isAttacking = this.attackImages.has(this.image);
         const notLastFrame = this.currentFrame < this.animations.Attack1.frameRate - 1;
-        const attackImage = (
-            this.image === this.animations.Attack1.image ||
-            this.image === this.animations.Attack1Left.image ||
-            this.image === this.animations.Attack2.image ||
-            this.image === this.animations.Attack2Left.image
-        );
         const sameImage = this.image === this.animations[key].image;
-        if (sameImage || !this.loaded || (attackImage && notLastFrame)) return;
+        if (sameImage || !this.loaded || (isAttacking && notLastFrame)) return;
 
         this.currentFrame = 0;
         this.image = this.animations[key].image;
@@ -85,11 +87,11 @@ class Player extends Component {
         // // draws out hitbox
         // c.fillStyle = "rgba(255, 0, 0, 0.2)";
         // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-        // // draws out attack
-        // if (this.isAttacking) {
-        //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
-        //     c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-        // }
+        // draws out attack
+        if (this.isAttacking) {
+            c.fillStyle = "rgba(0, 0, 255, 0.2)";
+            c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+        }
         
         this.draw();
 
@@ -391,16 +393,7 @@ class Player extends Component {
     }
 
     updateHitbox() {
-        if (!this.crouching) {
-            this.hitbox = {
-                position: {
-                    x: this.position.x + 44 * this.scale,
-                    y: this.position.y,
-                },
-                width: 70 * this.scale,
-                height: 110 * this.scale,
-            }
-        } else {
+        if (this.crouching || this.keys.up || this.velocity.y < 0) {
             this.hitbox = {
                 position: {
                     x: this.position.x + 44 * this.scale,
@@ -409,15 +402,35 @@ class Player extends Component {
                 width: 70 * this.scale,
                 height: 110 * this.scale / 2,
             }
+        } else {
+            this.hitbox = {
+                position: {
+                    x: this.position.x + 44 * this.scale,
+                    y: this.position.y,
+                },
+                width: 70 * this.scale,
+                height: 110 * this.scale,
+            }
         }
-
-        this.attackBox = {
-            position: {
-                x: this.position.x + this.scale * (54 + 26 * (this.attackDirection === "right" ? 1 : -1)),
-                y: this.position.y + 23 * this.scale,
-            },
-            width: 53 * this.scale,
-            height: 20 * this.scale,
+        
+        if (!this.keys.up) {
+            this.attackBox = {
+                position: {
+                    x: this.position.x + this.scale * (54 + 26 * (this.attackDirection === "right" ? 1 : -1)),
+                    y: this.position.y + 23 * this.scale,
+                },
+                width: 53 * this.scale,
+                height: 20 * this.scale,
+            }
+        } else {
+            this.attackBox = {
+                position: {
+                    x: this.position.x + this.scale * 70,
+                    y: this.position.y - 21 * this.scale,
+                },
+                width: 20 * this.scale,
+                height: 20 * this.scale,
+            }
         }
     }
 

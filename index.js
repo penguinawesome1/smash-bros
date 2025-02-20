@@ -52,16 +52,16 @@ const player2Respawn = {
 
 const scales = {
     "farm": .4,
-    "gas-station": .9,
+    "gas-station": .5,
 }
 const scale = scales[selectedMap];
 
 const scaledCanvas = {
-    scale: 3,
+    scale: 2.7,
     width: canvas.width / this.scale,
     height: canvas.height / this.scale,
     transX: 0,
-    transY: -175,
+    transY: -150,
     width: canvas.width / this.scale,
     height: canvas.height / this.scale,
 }
@@ -76,7 +76,7 @@ const background = new Sprite({
 
 const floorCollisions = floorHolder[selectedMap];
 const floorCollisions2D = [];
-for (let i = 0; i < floorCollisions.length; i += 32) {
+for (let i = 0; i < floorCollisions.length; i += 64) {
     floorCollisions2D.push(floorCollisions.slice(i, i + 32));
 }
 
@@ -195,6 +195,16 @@ const player1 = new Player({
             frameRate: 1,
             frameBuffer: 0,
         },
+        Hurt: {
+            imageSrc: `./img/players/${selectedPlayer1}/Hurt.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        HurtLeft: {
+            imageSrc: `./img/players/${selectedPlayer1}/HurtLeft.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
     }
 });
 
@@ -276,6 +286,16 @@ const player2 = new Player({
             frameRate: 1,
             frameBuffer: 0,
         },
+        Hurt: {
+            imageSrc: `./img/players/${selectedPlayer1}/Hurt.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
+        HurtLeft: {
+            imageSrc: `./img/players/${selectedPlayer1}/HurtLeft.png`,
+            frameRate: 1,
+            frameBuffer: 0,
+        },
     }
 });
 
@@ -313,14 +333,6 @@ function animate() {
     }
 
     c.restore();
-}
-
-function gameOver(winner) {
-    document.getElementById("game-over-popup").classList.remove("hidden");
-    document.getElementById("winner").innerText = winner;
-    // setTimeout(() => {
-    //     location.reload();
-    // }, 3000);
 }
 
 animate();

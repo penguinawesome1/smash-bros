@@ -87,7 +87,7 @@ class Player extends Component {
         // // draws out hitbox
         // c.fillStyle = "rgba(255, 0, 0, 0.2)";
         // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-        // draws out attack
+        // // draws out attack
         // if (this.isAttacking) {
         //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
         //     c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
@@ -96,8 +96,9 @@ class Player extends Component {
         this.draw();
 
         if (this.hitStop) {
-            c.fillStyle = "white";
-            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+            // c.fillStyle = "white";
+            // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+            this.switchSprite(this.lastDirection === "right" ? "Hurt" : "HurtLeft");
         }
 
         this.updateArrow();
@@ -126,7 +127,8 @@ class Player extends Component {
             return;
         }
 
-        this.checkForVerticalPlayerCollision();
+        if (this.smashing) this.checkForVerticalPlayerCollision();
+        // this.checkForHorizontalPlayerCollision();
 
         this.checkForHit();
         this.checkForDeath();
@@ -189,7 +191,7 @@ class Player extends Component {
                     direction,
                     player: this,
                     otherPlayer: this.otherPlayer,
-                    type: "potion",
+                    type: "bullet",
                     scale: this.scale,
                 })
             );
@@ -274,20 +276,26 @@ class Player extends Component {
             this.otherPlayer.grabbed = false;
             this.otherPlayer.velocity = {
                 x: this.velocity.x + 15 * (this.lastDirection === "right" ? 1 : -1),
-                y: this.velocity.y - 7,
+                y: this.velocity.y + 7,
             }
             return;
         }
 
+        this.attackDirection = this.lastDirection;
+        this.updateHitbox();
         if (collision({
-            object1: this.attackBox,
+            object1: {
+                position: this.attackBox.position,
+                width: this.attackBox.width,
+                height: this.attackBox.height + 2000,
+            },
             object2: this.otherPlayer.hitbox,
         })) {
             this.otherPlayer.grabbed = true;
             setTimeout(() => {
                 this.otherPlayer.grabbed = false;
             }, 2000);
-        }
+        }        
     }
 
     checkGrabbed() {
@@ -311,6 +319,9 @@ class Player extends Component {
 
     checkForHit() {
         if (!this.isAttacking || this.otherPlayer.dashing) return;
+
+        c.fillStyle = "red";
+        c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
 
         if (collision({
             object1: this.attackBox,
@@ -341,7 +352,9 @@ class Player extends Component {
             this.lives--;
             this.livesBar.children[this.lives].style.backgroundColor = "black";
             if (this.lives < 1) {
-                gameOver(this === player1 ? 2 : 1);
+                const winner = this === player1 ? 2 : 1;
+                document.getElementById("game-over-popup").classList.remove("hidden");
+                document.getElementById("winner").innerText = winner;
                 return;
             }
             this.position = this === player1 ? { ...player1Respawn } : { ...player2Respawn };
@@ -414,22 +427,22 @@ class Player extends Component {
         
         if (this.dashing) {
             this.attackBox.width = 0;
-        } if (!this.keys.up) {
-            this.attackBox = {
-                position: {
-                    x: this.position.x + this.scale * (54 + 26 * (this.attackDirection === "right" ? 1 : -1)),
-                    y: this.position.y + 23 * this.scale,
-                },
-                width: 53 * this.scale,
-                height: 20 * this.scale,
-            }
-        } else {
+        } else if (this.keys.up) {
             this.attackBox = {
                 position: {
                     x: this.position.x + this.scale * 70,
                     y: this.position.y - 21 * this.scale,
                 },
                 width: 20 * this.scale,
+                height: 20 * this.scale,
+            }
+        } else {
+            this.attackBox = {
+                position: {
+                    x: this.position.x + this.scale * (28 + 52 * (this.attackDirection === "right" ? 1 : 0)),
+                    y: this.position.y + 23 * this.scale,
+                },
+                width: 53 * this.scale,
                 height: 20 * this.scale,
             }
         }

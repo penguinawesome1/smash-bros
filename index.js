@@ -49,6 +49,8 @@ const player2Respawn = {
     x: 350,
     y: 300,
 };
+let hack = false;
+let dev = false;
 
 const scales = {
     "farm": .4,
@@ -326,12 +328,6 @@ function animate() {
     player1.update();
     player2.update();
 
-    if (player1.dev) {
-        player1.hack();
-        player1.lives = maxLives;
-        player2.lives = maxLives;
-    }
-
     c.restore();
 }
 
@@ -357,7 +353,8 @@ window.addEventListener("keydown", (event) => {
         case ",": player2.dash(); break;
         case "M": player2.grab(); break;
         case "1": player1.hack(); break;
-        case "2": player1.dev = !player1.dev; break;
+        case "2": hack = !hack; break;
+        case "3": dev = !dev; break;
     }
 });
 

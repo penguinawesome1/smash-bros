@@ -76,28 +76,35 @@ class Player extends Component {
         this.updateFrames();
         this.updateHitbox();
 
+        if (hack) {
+            this.hack();
+            this.lives = maxLives;
+            this.otherPlayer.lives = maxLives;
+        }
+
         // draw player2
         if (this === player2) {
             c.fillStyle = "rgba(0, 255, 0, 0.5)";
             c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
         }
-        // // draws out image
-        // c.fillStyle = "rgba(0, 255, 0, 0.2)";
-        // c.fillRect(this.position.x, this.position.y, this.width, this.height);
-        // // draws out hitbox
-        // c.fillStyle = "rgba(255, 0, 0, 0.2)";
-        // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-        // // draws out attack
-        // if (this.isAttacking) {
-        //     c.fillStyle = "rgba(0, 0, 255, 0.2)";
-        //     c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
-        // }
+
+        if (dev) {
+            // draws out image
+            // c.fillStyle = "rgba(0, 255, 0, 0.2)";
+            // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+            // draws out hitbox
+            c.fillStyle = "rgba(255, 0, 0, 0.2)";
+            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+            // draws out attack
+            if (this.isAttacking) {
+                c.fillStyle = "blue";
+                c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
+            }
+        }
         
         this.draw();
 
         if (this.hitStop) {
-            // c.fillStyle = "white";
-            // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
             this.switchSprite(this.lastDirection === "right" ? "Hurt" : "HurtLeft");
         }
 
@@ -127,7 +134,7 @@ class Player extends Component {
             return;
         }
 
-        if (this.smashing) this.checkForVerticalPlayerCollision();
+        this.checkForVerticalPlayerCollision();
         // this.checkForHorizontalPlayerCollision();
 
         this.checkForHit();
@@ -319,9 +326,6 @@ class Player extends Component {
 
     checkForHit() {
         if (!this.isAttacking || this.otherPlayer.dashing) return;
-
-        c.fillStyle = "red";
-        c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
 
         if (collision({
             object1: this.attackBox,
@@ -563,7 +567,7 @@ class Player extends Component {
     }
 
     checkForVerticalPlayerCollision() {
-        if (this.velocity.y <= 0) return;
+        if (this.velocity.y <= 0 || !this.smashing) return;
             
         if (collision({
             object1: this.hitbox,

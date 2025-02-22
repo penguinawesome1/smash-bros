@@ -105,8 +105,10 @@ class Attack extends Component {
 
         this.draw();
 
-        // c.fillStyle = "red";
-        // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        if (dev) {
+            c.fillStyle = "red";
+            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
+        }
 
         if (this.type === "boomerang") {
             this.velocity.x += this.direction === "right" ? -.2 : .2;

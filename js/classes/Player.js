@@ -195,7 +195,7 @@ class Player extends Component {
                     player: this,
                     otherPlayer: this.otherPlayer,
                     type: "bullet",
-                    scale: this.scale,
+                    scale: this.scale * 4,
                 })
             );
 
@@ -287,14 +287,16 @@ class Player extends Component {
         this.attackDirection = this.lastDirection;
         this.updateHitbox();
         if (collision({
-            object1: {
-                position: this.attackBox.position,
-                width: this.attackBox.width,
-                height: this.attackBox.height,
-            },
+            object1: this.attackBox,
             object2: this.otherPlayer.hitbox,
         })) {
             this.otherPlayer.grabbed = true;
+            this.otherPlayer.velocity = {
+                x: 0,
+                y: 0,
+            }
+            this.otherPlayer.lastDirection = this.lastDirection;
+            this.otherPlayer.switchSprite("Idle");
             setTimeout(() => {
                 this.otherPlayer.grabbed = false;
             }, 2000);
@@ -324,7 +326,7 @@ class Player extends Component {
         if (!this.isAttacking || this.otherPlayer.dashing) return;
 
         if (collision({
-            object1: this.attackBox,
+            oGject1: this.attackBox,
             object2: this.otherPlayer.hitbox,
         })) {
             const angle = calcAngle({

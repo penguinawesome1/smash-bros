@@ -21,8 +21,8 @@ class Attack extends Component {
         switch (this.type) {
             case "bullet": {
                 this.position = {
-                    x: position.x + this.scale * (50 + 50 * (this.direction === "right" ? 1 : -1)),
-                    y: position.y + this.scale * 42.5,
+                    x: position.x + this.scale * (0 + 50 * (this.direction === "right" ? 1 : 0)),
+                    y: position.y + this.scale * 28,
                 };
                 this.velocity = {
                     x: this.direction === "right" ? 20 : -20,
@@ -149,11 +149,8 @@ class Attack extends Component {
 
     reactToCollision() {
         if (this.isCollision()) {
-            // const i = this.player.attackList.indexOf(this);
-            // if (i) this.player.attackList.splice(i, 1);
-            // console.log(this.player.attackList)
-            // console.log(i, "hi");
-            this.player.attackList.splice(0, 1);
+            const i = this.player.attackList.indexOf(this);
+            if (i > -1) this.player.attackList.splice(i, 1);
             return;
         }
 
@@ -175,11 +172,11 @@ class Attack extends Component {
                 })
             );
             const i = this.player.attackList.indexOf(this);
-            if (i) this.player.attackList.splice(i, 1);
+            if (i > -1) this.player.attackList.splice(i, 1);
         }
         if (this.type === "bullet") {
             const i = this.player.attackList.indexOf(this);
-            if (i) this.player.attackList.splice(i, 1);
+            if (i > -1) this.player.attackList.splice(i, 1);
         }
 
         if (this.type === "homingdart") {

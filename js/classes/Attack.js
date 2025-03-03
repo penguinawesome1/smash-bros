@@ -82,7 +82,7 @@ class Attack extends Component {
             }
             case "homingdart": {
                 this.position = {
-                    x: 238.5,
+                    x: 350,
                     y: 250,
                 }
                 this.velocity = {
@@ -148,8 +148,17 @@ class Attack extends Component {
     }
 
     reactToCollision() {
+        if (this.isCollision()) {
+            // const i = this.player.attackList.indexOf(this);
+            // if (i) this.player.attackList.splice(i, 1);
+            // console.log(this.player.attackList)
+            // console.log(i, "hi");
+            this.player.attackList.splice(0, 1);
+            return;
+        }
+
         const playerCollision = this.checkForPlayerCollision();
-        if (!playerCollision && !this.isCollision()) return;
+        if (!playerCollision) return;
 
         if (this.type === "potion") {
             this.player.attackList.push(
@@ -165,18 +174,18 @@ class Attack extends Component {
                     scale: 10,
                 })
             );
-            const i = player1.attackList.indexOf(this);
+            const i = this.player.attackList.indexOf(this);
             if (i) this.player.attackList.splice(i, 1);
         }
         if (this.type === "bullet") {
-            const i = player1.attackList.indexOf(this);
+            const i = this.player.attackList.indexOf(this);
             if (i) this.player.attackList.splice(i, 1);
         }
 
         if (this.type === "homingdart") {
             if (collision({
                 object1: this.hitbox,
-                object2: player1.hitbox,
+                object2: this.player.hitbox,
             })) {
                 const angle = calcAngle({
                     object1: this.hitbox,
@@ -226,24 +235,18 @@ class Attack extends Component {
     checkForPlayerCollision() {
         if (this.type === "homingdart") {
             return collision({
-                    object1: this.hitbox,
-                    object2: player2.hitbox,
-                }) || collision({
                 object1: this.hitbox,
-                object2: player1.hitbox,
+                object2: this.otherPlayer.hitbox,
+            }) || collision({
+                object1: this.hitbox,
+                object2: this.player.hitbox,
             });
         }
 
-        if (this.player === player1) {
-            return collision({
-                object1: this.hitbox,
-                object2: player2.hitbox,
-            });
-        }
-
-        return collision({
+        const hitOtherPlayer = collision({
             object1: this.hitbox,
-            object2: player1.hitbox,
+            object2: this.otherPlayer.hitbox,
         });
+        return hitOtherPlayer;
     }
 }

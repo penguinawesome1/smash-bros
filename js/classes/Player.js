@@ -82,22 +82,16 @@ class Player extends Component {
             this.otherPlayer.lives = maxLives;
         }
 
-        // draw player2
-        if (this === player2) {
-            c.fillStyle = "rgba(0, 255, 0, 0.5)";
-            c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
-        }
-
         if (dev) {
             // draws out image
-            // c.fillStyle = "rgba(0, 255, 0, 0.2)";
-            // c.fillRect(this.position.x, this.position.y, this.width, this.height);
+            c.fillStyle = "rgba(0, 255, 0, 0.2)";
+            c.fillRect(this.position.x, this.position.y, this.width, this.height);
             // draws out hitbox
-            c.fillStyle = "rgba(255, 0, 0, 0.2)";
+            c.fillStyle = "rgba(255, 0, 0, .2)";
             c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
             // draws out attack
             if (this.isAttacking) {
-                c.fillStyle = "blue";
+                c.fillStyle = "rgba(0, 0, 255, .2)";
                 c.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height);
             }
         }
@@ -105,6 +99,8 @@ class Player extends Component {
         this.draw();
 
         if (this.hitStop) {
+            // c.fillStyle = "white";
+            // c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height);
             this.switchSprite(this.lastDirection === "right" ? "Hurt" : "HurtLeft");
         }
 
@@ -282,8 +278,8 @@ class Player extends Component {
         if (this.otherPlayer.grabbed) {
             this.otherPlayer.grabbed = false;
             this.otherPlayer.velocity = {
-                x: this.velocity.x + 15 * (this.lastDirection === "right" ? 1 : -1),
-                y: this.velocity.y + 7,
+                x: this.velocity.x + (1500 * (this.lastDirection === "right" ? 1 : -1)) / this.otherPlayer.healthBar.value,
+                y: this.velocity.y,
             }
             return;
         }
@@ -294,7 +290,7 @@ class Player extends Component {
             object1: {
                 position: this.attackBox.position,
                 width: this.attackBox.width,
-                height: this.attackBox.height + 2000,
+                height: this.attackBox.height,
             },
             object2: this.otherPlayer.hitbox,
         })) {
@@ -379,8 +375,8 @@ class Player extends Component {
             object1: this.hitbox,
             object2: {
                 position: {
-                    x: canvas.width / 2 * scale,
-                    y: canvas.height / 2 * scale,
+                    x: 350,
+                    y: 250,
                 },
                 width: 0,
                 height: 0,
@@ -392,8 +388,8 @@ class Player extends Component {
             object1: this.hitbox,
             object2: {
                 position: {
-                    x: canvas.width / 2 * scale,
-                    y: canvas.height / 2 * scale,
+                    x: 350,
+                    y: 250,
                 },
                 width: 0,
                 height: 0,
@@ -412,20 +408,20 @@ class Player extends Component {
         if (this.crouching || this.keys.up || this.velocity.y < 0) {
             this.hitbox = {
                 position: {
-                    x: this.position.x + 44 * this.scale,
-                    y: this.position.y + 110 * this.scale / 2,
+                    x: this.position.x + 75 * this.scale,
+                    y: this.position.y + this.height / 2,
                 },
-                width: 70 * this.scale,
-                height: 110 * this.scale / 2,
+                width: 135 * this.scale,
+                height: this.height / 2,
             }
         } else {
             this.hitbox = {
                 position: {
-                    x: this.position.x + 44 * this.scale,
+                    x: this.position.x + 75 * this.scale,
                     y: this.position.y,
                 },
-                width: 70 * this.scale,
-                height: 110 * this.scale,
+                width: 135 * this.scale,
+                height: this.height,
             }
         }
         
@@ -434,20 +430,20 @@ class Player extends Component {
         } else if (this.keys.up) {
             this.attackBox = {
                 position: {
-                    x: this.position.x + this.scale * 70,
-                    y: this.position.y - 21 * this.scale,
+                    x: this.position.x + this.scale * 120,
+                    y: this.position.y - 42 * this.scale,
                 },
-                width: 20 * this.scale,
-                height: 20 * this.scale,
+                width: 40 * this.scale,
+                height: 40 * this.scale,
             }
         } else {
             this.attackBox = {
                 position: {
-                    x: this.position.x + this.scale * (28 + 52 * (this.attackDirection === "right" ? 1 : 0)),
-                    y: this.position.y + 23 * this.scale,
+                    x: this.position.x + this.scale * (42 + 96 * (this.attackDirection === "right" ? 1 : 0)),
+                    y: this.position.y + 65 * this.scale,
                 },
-                width: 53 * this.scale,
-                height: 20 * this.scale,
+                width: 106 * this.scale,
+                height: 40 * this.scale,
             }
         }
     }
@@ -567,7 +563,7 @@ class Player extends Component {
     }
 
     checkForVerticalPlayerCollision() {
-        if (this.velocity.y <= 0 || !this.smashing) return;
+        if (!this.smashing || this.velocity.y <= 0) return;
             
         if (collision({
             object1: this.hitbox,
@@ -592,6 +588,8 @@ class Player extends Component {
 
             this.otherPlayer.healthBar.value -= 5 * multiplier;
         }
+
+        // this.smashing = false;
     }
 
 }

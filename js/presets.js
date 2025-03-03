@@ -298,11 +298,11 @@ function getFarmPlatformCollision() {
     platformCollisionBlocks.push(
         new CollisionBlock({
             position: {
-                x: 60,
+                x: 190,
                 y: 300,
             },
             imageSrc: `./img/collider.png`,
-            scale: 4,
+            scale: 2.5,
             scaleY: .05,
         })
     );

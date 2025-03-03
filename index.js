@@ -27,6 +27,10 @@ const c = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let hack = false;
+let dev = false;
+let pause = false;
+
 const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
 const lives1 = document.getElementById("lives1");
@@ -49,11 +53,9 @@ const player2Respawn = {
     x: 350,
     y: 300,
 };
-let hack = false;
-let dev = false;
 
 const scales = {
-    "farm": .4,
+    "farm": .2,
     "gas-station": .5,
 }
 const scale = scales[selectedMap];
@@ -76,230 +78,22 @@ const background = new Sprite({
     imageSrc: `./img/backgrounds/${selectedMap}.png`,
 });
 
-const floorCollisions = floorHolder[selectedMap];
-const floorCollisions2D = [];
-for (let i = 0; i < floorCollisions.length; i += 64) {
-    floorCollisions2D.push(floorCollisions.slice(i, i + 32));
+const collisionBlocks = getFarmCollision();
+const platformCollisionBlocks = getFarmPlatformCollision();
+
+let player1, player2;
+switch (passedPlayer1) {
+    case ("country-boy"): player1 = getCountryBoy({ ...player1Respawn }); break;
+    case ("mechanic"): player1 = getMechanic({ ...player1Respawn }); break;
+    case ("cube"): player1 = getCube({ ...player1Respawn }); break;
+    default: player1 = getCountryBoy({ ...player1Respawn }); break;
 }
-
-const collisionBlocks = [];
-floorCollisions2D.forEach((row, y) => {
-    row.forEach((symbol, x) => {
-        if(symbol === 202) {
-            collisionBlocks.push(new CollisionBlock({
-                position: {
-                    x: x * 16,
-                    y: y * 16,
-                },
-            }));
-        }
-    });
-});
-
-const platformCollisions = platformHolder[selectedMap];
-const platformCollisions2D = [];
-for (let i = 0; i < platformCollisions.length; i += 32) {
-    platformCollisions2D.push(platformCollisions.slice(i, i + 32));
+switch (passedPlayer2) {
+    case ("country-boy"): player2 = getCountryBoy({ ...player2Respawn }); break;
+    case ("mechanic"): player2 = getMechanic({ ...player2Respawn }); break;
+    case ("cube"): player2 = getCube({ ...player2Respawn }); break;
+    default: player2 = getCountryBoy({ ...player2Respawn }); break;
 }
-
-const platformCollisionBlocks = [];
-platformCollisions2D.forEach((row, y) => {
-    row.forEach((symbol, x) => {
-        if(symbol === 202) {
-            platformCollisionBlocks.push(
-                new CollisionBlock({
-                    position: {
-                        x: x * 16,
-                        y: y * 16,
-                    },
-                    height: 8,
-                })
-            );
-        }
-    });
-});
-
-const player1 = new Player({
-    position: { ...player1Respawn },
-    scale,
-    collisionBlocks,
-    platformCollisionBlocks,
-    imageSrc: `./img/players/temp/Idle.png`,
-    frameRate: 8,
-    animations: {
-        Idle: {
-            imageSrc: `./img/players/${selectedPlayer1}/Idle.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        IdleLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/IdleLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        Run: {
-            imageSrc: `./img/players/${selectedPlayer1}/Run.png`,
-            frameRate: 5,
-            frameBuffer: 6,
-        },
-        RunLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/RunLeft.png`,
-            frameRate: 5,
-            frameBuffer: 6,
-        },
-        Jump: {
-            imageSrc: `./img/players/${selectedPlayer1}/Jump.png`,
-            frameRate: 2,
-            frameBuffer: 12,
-        },
-        JumpLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/JumpLeft.png`,
-            frameRate: 2,
-            frameBuffer: 12,
-        },
-        Fall: {
-            imageSrc: `./img/players/${selectedPlayer1}/Fall.png`,
-            frameRate: 1,
-            frameBuffer: 8,
-        },
-        FallLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/FallLeft.png`,
-            frameRate: 1,
-            frameBuffer: 8,
-        },
-        Attack1: {
-            imageSrc: `./img/players/${selectedPlayer1}/Attack1.png`,
-            frameRate: 8,
-            frameBuffer: 3,
-        },
-        Attack1Left: {
-            imageSrc: `./img/players/${selectedPlayer1}/Attack1Left.png`,
-            frameRate: 8,
-            frameBuffer: 3,
-        },
-        Attack2: {
-            imageSrc: `./img/players/${selectedPlayer1}/Attack2.png`,
-            frameRate: 9,
-            frameBuffer: 2,
-        },
-        Attack2Left: {
-            imageSrc: `./img/players/${selectedPlayer1}/Attack2Left.png`,
-            frameRate: 9,
-            frameBuffer: 2,
-        },
-        Dash: {
-            imageSrc: `./img/players/${selectedPlayer1}/Dash.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        DashLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/DashLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        Hurt: {
-            imageSrc: `./img/players/${selectedPlayer1}/Hurt.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        HurtLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/HurtLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-    }
-});
-
-const player2 = new Player({
-    position: { ...player2Respawn },
-    collisionBlocks,
-    platformCollisionBlocks,
-    scale,
-    imageSrc: `./img/players/temp/Idle.png`,
-    frameRate: 8,
-    animations: {
-        Idle: {
-            imageSrc: `./img/players/${selectedPlayer2}/Idle.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        IdleLeft: {
-            imageSrc: `./img/players/${selectedPlayer2}/IdleLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        Run: {
-            imageSrc: `./img/players/${selectedPlayer2}/Run.png`,
-            frameRate: 5,
-            frameBuffer: 6,
-        },
-        RunLeft: {
-            imageSrc: `./img/players/${selectedPlayer2}/RunLeft.png`,
-            frameRate: 5,
-            frameBuffer: 6,
-        },
-        Jump: {
-            imageSrc: `./img/players/${selectedPlayer2}/Jump.png`,
-            frameRate: 2,
-            frameBuffer: 12,
-        },
-        JumpLeft: {
-            imageSrc: `./img/players/${selectedPlayer2}/JumpLeft.png`,
-            frameRate: 2,
-            frameBuffer: 12,
-        },
-        Fall: {
-            imageSrc: `./img/players/${selectedPlayer2}/Fall.png`,
-            frameRate: 1,
-            frameBuffer: 8,
-        },
-        FallLeft: {
-            imageSrc: `./img/players/${selectedPlayer2}/FallLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        Attack1: {
-            imageSrc: `./img/players/${selectedPlayer2}/Attack1.png`,
-            frameRate: 8,
-            frameBuffer: 3,
-        },
-        Attack1Left: {
-            imageSrc: `./img/players/${selectedPlayer2}/Attack1Left.png`,
-            frameRate: 8,
-            frameBuffer: 3,
-        },
-        Attack2: {
-            imageSrc: `./img/players/${selectedPlayer2}/Attack2.png`,
-            frameRate: 9,
-            frameBuffer: 2,
-        },
-        Attack2Left: {
-            imageSrc: `./img/players/${selectedPlayer2}/Attack2Left.png`,
-            frameRate: 9,
-            frameBuffer: 2,
-        },
-        Dash: {
-            imageSrc: `./img/players/${selectedPlayer2}/Dash.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        DashLeft: {
-            imageSrc: `./img/players/${selectedPlayer2}/DashLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        Hurt: {
-            imageSrc: `./img/players/${selectedPlayer1}/Hurt.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-        HurtLeft: {
-            imageSrc: `./img/players/${selectedPlayer1}/HurtLeft.png`,
-            frameRate: 1,
-            frameBuffer: 0,
-        },
-    }
-});
 
 player1.otherPlayer = player2;
 player2.otherPlayer = player1;
@@ -311,6 +105,7 @@ player2.lastDirection = "left";
 
 function animate() {
     window.requestAnimationFrame(animate);
+    if (pause) return;
 
     c.save();
     c.scale(scaledCanvas.scale, scaledCanvas.scale);
@@ -355,6 +150,7 @@ window.addEventListener("keydown", (event) => {
         case "1": player1.hack(); break;
         case "2": hack = !hack; break;
         case "3": dev = !dev; break;
+        case "ESCAPE": pause = !pause; break;
     }
 });
 

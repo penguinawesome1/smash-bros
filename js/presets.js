@@ -20,12 +20,12 @@ function getCountryBoy(position) {
       Run: {
         imageSrc: `./img/players/country-boy/Run.png`,
         frameRate: 5,
-        frameBuffer: 1,
+        frameBuffer: 6,
       },
       RunLeft: {
         imageSrc: `./img/players/country-boy/RunLeft.png`,
         frameRate: 5,
-        frameBuffer: 1,
+        frameBuffer: 6,
       },
       Jump: {
         imageSrc: `./img/players/country-boy/Jump.png`,

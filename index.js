@@ -56,7 +56,7 @@ const player2Respawn = {
 
 const scales = {
     "farm": .2,
-    "gas-station": .5,
+    "gas-station": .2,
 }
 const scale = scales[selectedMap];
 
@@ -78,8 +78,21 @@ const background = new Sprite({
     imageSrc: `./img/backgrounds/${selectedMap}.png`,
 });
 
-const collisionBlocks = getFarmCollision();
-const platformCollisionBlocks = getFarmPlatformCollision();
+let collisionBlocks, platformCollisionBlocks;
+switch (passedMap) {
+    case ("farm"):
+        collisionBlocks = getFarmCollision();
+        platformCollisionBlocks = getFarmPlatformCollision();
+        break;
+    case ("gas-station"):
+        collisionBlocks = getGasStationCollision();
+        platformCollisionBlocks = getGasStationPlatformCollision();
+        break;
+    default:
+        collisionBlocks = getFarmCollision();
+        platformCollisionBlocks = getFarmPlatformCollision();
+        break;
+}
 
 let player1, player2;
 switch (passedPlayer1) {

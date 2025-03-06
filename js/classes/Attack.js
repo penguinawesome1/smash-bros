@@ -148,6 +148,7 @@ class Attack extends Component {
     }
 
     reactToCollision() {
+        if (this.otherPlayer.dashing) return;
         if (this.isCollision()) {
             const i = this.player.attackList.indexOf(this);
             if (i > -1) this.player.attackList.splice(i, 1);

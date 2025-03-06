@@ -123,6 +123,11 @@ class Player extends Component {
         this.updateHitbox();
         this.grounded = this.respondToVerticalCollision() !== false;
         this.crouching = this.grounded && this.keys.down;
+        if (this.crouching) {
+            const image = this.lastDirection === "right" ? "Crouch" : "CrouchLeft";
+            this.switchSprite(image);
+            return;
+        }
 
         if (this.dashing) {
             const image = this.lastDirection === "right" ? "Dash" : "DashLeft";
@@ -153,7 +158,7 @@ class Player extends Component {
     }
 
     attack1() {
-        if (this.cooldownAttack) return;
+        if (this.cooldownAttack || this.otherPlayer.grabbed) return;
         
         this.switchSprite(this.lastDirection === "right" ? "Attack1" : "Attack1Left");
         this.attackDirection = this.lastDirection;
@@ -173,14 +178,9 @@ class Player extends Component {
     }
 
     attack2() {
-        if (this.cooldownAttack) return;
+        if (this.cooldownAttack || this.otherPlayer.grabbed) return;
 
-        if (this.lastDirection === "right") {
-            this.switchSprite("Attack2");
-        } else {
-            this.switchSprite("Attack2Left");
-        }
-
+        this.switchSprite(this.lastDirection === "right" ? "Attack2" : "Attack2Left");
         const direction = this.lastDirection;
 
         this.cooldownAttack = true;
@@ -223,44 +223,49 @@ class Player extends Component {
     dash() {
         if (this.dashes < 1 || this.cooldownDash) return;
 
+        let x = 0, y = 0;
         if (this.keys.up && !this.keys.down) {
             if (this.keys.left && !this.keys.right) {
                 // up left
-                this.velocity.x = -dashStrength / 1.414;
-                this.velocity.y = -dashStrength / 1.414;
+                x = -dashStrength / 1.414;
+                y = -dashStrength / 1.414;
             } else if (this.keys.right && !this.keys.left) {
                 // up right
-                this.velocity.x = dashStrength / 1.414;
-                this.velocity.y = -dashStrength / 1.414;
+                x = dashStrength / 1.414;
+                y = -dashStrength / 1.414;
             } else {
                 // up only
-                this.velocity.y = -dashStrength;
+                y = -dashStrength;
             }
         } else if (this.keys.down && !this.keys.up) {
             if (this.keys.left && !this.keys.right) {
                 // down left
-                this.velocity.x = -dashStrength / 1.414;
-                this.velocity.y = dashStrength / 1.414;
+                x = -dashStrength / 1.414;
+                y = dashStrength / 1.414;
             } else if (this.keys.right && !this.keys.left) {
                 // down right
-                this.velocity.x = dashStrength / 1.414;
-                this.velocity.y = dashStrength / 1.414;
+                x = dashStrength / 1.414;
+                y = dashStrength / 1.414;
             } else {
                 // down only
-                this.velocity.y = dashStrength;
+                y = dashStrength;
             }
         } else {
             if (this.keys.left && !this.keys.right) {
                 // left only
-                this.velocity.x = -dashStrength;
+                x = -dashStrength;
             } else if (this.keys.right && !this.keys.left) {
                 // right only
-                this.velocity.x = dashStrength;
+                x = dashStrength;
             } else {
                 // no direction
-                this.velocity.x = this.lastDirection === "right" ? dashStrength : -dashStrength;
+                x = this.lastDirection === "right" ? dashStrength : -dashStrength;
             }
         }
+
+        console.log(x, y)
+        this.velocity.x += x;
+        this.velocity.y += y;
 
         this.dashing = true;
         setTimeout(() => {
@@ -285,7 +290,9 @@ class Player extends Component {
         }
 
         this.attackDirection = this.lastDirection;
+        this.grabbing = true;
         this.updateHitbox();
+        this.grabbing = false;
         if (collision({
             object1: this.attackBox,
             object2: this.otherPlayer.hitbox,
@@ -326,7 +333,7 @@ class Player extends Component {
         if (!this.isAttacking || this.otherPlayer.dashing) return;
 
         if (collision({
-            oGject1: this.attackBox,
+            object1: this.attackBox,
             object2: this.otherPlayer.hitbox,
         })) {
             const angle = calcAngle({
@@ -429,19 +436,28 @@ class Player extends Component {
         
         if (this.dashing) {
             this.attackBox.width = 0;
+        } else if (this.grabbing) {
+            this.attackBox = {
+                position: {
+                    x: this.position.x + this.scale * (84 + 60 * (this.attackDirection === "right" ? 1 : -1)),
+                    y: this.position.y + 40 * this.scale,
+                },
+                width: 106 * this.scale,
+                height: 240 * this.scale,
+            }
         } else if (this.keys.up) {
             this.attackBox = {
                 position: {
-                    x: this.position.x + this.scale * 120,
+                    x: this.position.x + this.scale * (84 + 60 * (this.attackDirection === "right" ? 1 : -1)),
                     y: this.position.y - 42 * this.scale,
                 },
-                width: 40 * this.scale,
-                height: 40 * this.scale,
+                width: 120 * this.scale,
+                height: 120 * this.scale,
             }
         } else {
             this.attackBox = {
                 position: {
-                    x: this.position.x + this.scale * (42 + 96 * (this.attackDirection === "right" ? 1 : 0)),
+                    x: this.position.x + this.scale * (84 + 60 * (this.attackDirection === "right" ? 1 : -1)),
                     y: this.position.y + 65 * this.scale,
                 },
                 width: 106 * this.scale,
@@ -571,15 +587,19 @@ class Player extends Component {
             object1: this.hitbox,
             object2: this.otherPlayer.hitbox,
         })) {
+            const multiplier = this.smashing ? 2 : 1;
+            console.log(this.velocity.y)
+            this.otherPlayer.healthBar.value -= Math.max(8, multiplier * Math.sqrt(Math.abs(this.velocity.y)));
+
             const angle = calcAngle({
                 object1: this.otherPlayer.hitbox,
                 object2: this.hitbox,
             });
-            const multiplier = this.smashing ? 2 : 1;
             this.velocity.x += multiplier * Math.cos(angle) * 1000 / this.healthBar.value;
             this.velocity.y += multiplier * Math.sin(angle) * 700 / this.healthBar.value;
-            this.otherPlayer.velocity.x -= multiplier * Math.cos(angle) * 1000 / this.otherPlayer.healthBar.value;
-            this.otherPlayer.velocity.y -= multiplier * Math.sin(angle) * 350 / this.otherPlayer.healthBar.value;
+            this.otherPlayer.velocity.x -= multiplier * Math.cos(angle) * 1000 / (this.otherPlayer.healthBar.value + 1);
+            this.otherPlayer.velocity.y -= multiplier * Math.sin(angle) * 350 / (this.otherPlayer.healthBar.value + 1);
+            this.dashes = maxDashes;
 
             this.hitStop = true;
             this.otherPlayer.hitStop = true;
@@ -587,8 +607,6 @@ class Player extends Component {
                 this.hitStop = false;
                 this.otherPlayer.hitStop = false;
             }, hitStopDuration);
-
-            this.otherPlayer.healthBar.value -= 5 * multiplier;
         }
 
         // this.smashing = false;

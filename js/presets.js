@@ -20,12 +20,12 @@ function getCountryBoy(position) {
             Run: {
                 imageSrc: `./img/players/country-boy/Run.png`,
                 frameRate: 5,
-                frameBuffer: 6,
+                frameBuffer: 1,
             },
             RunLeft: {
                 imageSrc: `./img/players/country-boy/RunLeft.png`,
                 frameRate: 5,
-                frameBuffer: 6,
+                frameBuffer: 1,
             },
             Jump: {
                 imageSrc: `./img/players/country-boy/Jump.png`,
@@ -84,6 +84,16 @@ function getCountryBoy(position) {
             },
             HurtLeft: {
                 imageSrc: `./img/players/country-boy/HurtLeft.png`,
+                frameRate: 1,
+                frameBuffer: 0,
+            },
+            Crouch: {
+                imageSrc: `./img/players/country-boy/Crouch.png`,
+                frameRate: 1,
+                frameBuffer: 0,
+            },
+            CrouchLeft: {
+                imageSrc: `./img/players/country-boy/CrouchLeft.png`,
                 frameRate: 1,
                 frameBuffer: 0,
             },
@@ -278,33 +288,47 @@ function getCube(position) {
 }
 
 function getFarmCollision() {
-    const collisionBlocks = [];
-    collisionBlocks.push(
+    return [
         new CollisionBlock({
             position: {
                 x: 60,
                 y: 420,
             },
-            imageSrc: `./img/collider.png`,
-            scale: 4,
-            scaleY: .45,
+            imageSrc: `./img/colliders/island.png`,
+            scale: .5,
+            scaleY: .5,
         })
-    );
-    return collisionBlocks;
+    ];
 }
 
 function getFarmPlatformCollision() {
-    const platformCollisionBlocks = [];
-    platformCollisionBlocks.push(
+    return [
         new CollisionBlock({
             position: {
-                x: 190,
+                x: 60,
                 y: 300,
             },
-            imageSrc: `./img/collider.png`,
-            scale: 2.5,
+            imageSrc: `./img/colliders/default.png`,
+            scale: 4,
             scaleY: .05,
         })
-    );
-    return platformCollisionBlocks;
+    ];
+}
+
+function getGasStationCollision() {
+    return [
+        new CollisionBlock({
+            position: {
+                x: 60,
+                y: 440,
+            },
+            imageSrc: `./img/colliders/default.png`,
+            scale: 4,
+            scaleY: .2,
+        })
+    ];
+}
+
+function getGasStationPlatformCollision() {
+    return [];
 }

@@ -315,12 +315,12 @@ function getFarmPlatformCollision() {
   return [
     new CollisionBlock({
       position: {
-        x: 60,
-        y: 300,
+        x: 160,
+        y: 290,
       },
-      imageSrc: `./img/colliders/default.png`,
-      scale: 4,
-      scaleY: 0.05,
+      imageSrc: `./img/colliders/grass.png`,
+      scale: .3,
+      scaleY: .2,
     }),
   ];
 }

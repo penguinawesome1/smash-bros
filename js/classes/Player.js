@@ -281,7 +281,6 @@ class Player extends Component {
       }
     }
 
-    console.log(x, y);
     this.velocity.x += x;
     this.velocity.y += y;
 
@@ -388,6 +387,7 @@ class Player extends Component {
       this.lives--;
       this.livesBar.children[this.lives].style.backgroundColor = "black";
       if (this.lives < 1) {
+        if (!document.getElementById("game-over-popup").classList.contains("hidden")) return;
         const winner = this === player1 ? 2 : 1;
         document.getElementById("game-over-popup").classList.remove("hidden");
         document.getElementById("winner").innerText = winner;

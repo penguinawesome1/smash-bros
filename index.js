@@ -35,7 +35,7 @@ canvas.height = window.innerHeight;
 
 let hack = false;
 let dev = false;
-let pause = false;
+let pause = true;
 
 const health1 = document.getElementById("health1");
 const health2 = document.getElementById("health2");
@@ -53,11 +53,11 @@ const jumpStrength = 6;
 const hitStopDuration = 100;
 const player1Respawn = {
   x: 100,
-  y: 300,
+  y: 350,
 };
 const player2Respawn = {
-  x: 350,
-  y: 300,
+  x: 550,
+  y: 350,
 };
 
 const scales = {
@@ -138,9 +138,23 @@ player1.livesBar = lives1;
 player2.livesBar = lives2;
 player2.lastDirection = "left";
 
+const pauseSign = new Sprite ({
+    position: {
+      x: 600,
+      y: 10,
+    },
+    imageSrc: "./img/pauseSign.png",
+  }
+);
+
+let count = 0;
+
 function animate() {
   window.requestAnimationFrame(animate);
-  if (pause) return;
+  if (pause && count > 10) {
+    pauseSign.update();
+    return;
+  }
 
   c.save();
   c.scale(scaledCanvas.scale, scaledCanvas.scale);
@@ -159,6 +173,8 @@ function animate() {
   player2.update();
 
   c.restore();
+
+  count++;
 }
 
 animate();
@@ -227,7 +243,7 @@ window.addEventListener("keydown", (event) => {
     case "3":
       dev = !dev;
       break;
-    case "ESCAPE":
+    case " ":
       pause = !pause;
       break;
   }
